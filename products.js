@@ -7,8 +7,8 @@
 // assets/products/world-coin/
 // assets/products/us-coin/
 //
-// For each product, upload images using the SKU naming rule:
-// bc-00001-1.jpg, bc-00001-2.jpg, bc-00001-3.jpg
+// For each product, upload images using the global item naming rule:
+// 00001-1.jpg, 00001-2.jpg, 00001-3.jpg
 // Sold: change status from "available" to "sold" and buy buttons disappear.
 
 const PAYPAL_EMAIL = "wangjihang88@gmail.com";
@@ -28,9 +28,9 @@ const BAYARD_CATEGORY_IMAGES = {
 const BAYARD_PRODUCTS = {
   "chinese-machine-struck-coins": [
     {
-      id: "bc-00001",
-      itemNumber: "BC-00001",
-      sku: "BC-00001",
+      id: "00001",
+      itemNumber: "00001",
+      sku: "00001",
       category: "chinese-machine-struck-coins",
       status: "available",
       featured: true,
@@ -52,9 +52,9 @@ const BAYARD_PRODUCTS = {
       currency: "USD",
 
       images: [
-        "../assets/products/chinese-machine-struck/bc-00001-1.jpg",
-        "../assets/products/chinese-machine-struck/bc-00001-2.jpg",
-        "../assets/products/chinese-machine-struck/bc-00001-3.jpg"
+        "../assets/products/chinese-machine-struck/00001-1.jpg",
+        "../assets/products/chinese-machine-struck/00001-2.jpg",
+        "../assets/products/chinese-machine-struck/00001-3.jpg"
       ],
 
       description: "Variety with small stag's head. A lovely Mint State Tael, displaying softly glowing luster and attractive, balanced coloration. Strong cartwheel luster radiates across both surfaces, enhancing the overall eye appeal."
