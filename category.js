@@ -13,28 +13,44 @@ function priceNumber(p) {
   return Number.isFinite(n) ? n : 0;
 }
 
+function isSold(p) {
+  return String(p.status || '').toLowerCase() === 'sold';
+}
+
+function paypalForm(p, title, item, price) {
+  if (p.paypalLink) {
+    return `<a class="btn btn-primary buy-link" href="${p.paypalLink}" target="_blank" rel="noopener noreferrer">Buy with PayPal</a>`;
+  }
+  return `<form class="buy-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+    <input type="hidden" name="cmd" value="_xclick">
+    <input type="hidden" name="business" value="${PAYPAL_EMAIL}">
+    <input type="hidden" name="item_name" value="${title}">
+    <input type="hidden" name="item_number" value="${item}">
+    <input type="hidden" name="amount" value="${price}">
+    <input type="hidden" name="currency_code" value="${CURRENCY_CODE || 'USD'}">
+    <button class="btn btn-primary" type="submit">Buy with PayPal</button>
+  </form>`;
+}
+
 function renderCard(p, i, category) {
   const title = p.title || 'Untitled Coin';
   const image = p.image || '../assets/category-chinese-coins.jpg';
   const price = p.price || '';
   const item = p.itemNumber || `${category}-${i+1}`;
   const status = p.status || 'Available';
-  const paypalLink = p.paypalLink || '';
-  const badges = [status, p.featured ? 'Featured' : '', p.grade || '', p.year || '', p.variety || ''].filter(Boolean);
-  const details = [p.year, p.grade, p.variety].filter(Boolean).join(' · ');
-  const buyHtml = paypalLink
-    ? `<a class="btn btn-primary buy-link" href="${paypalLink}" target="_blank" rel="noopener noreferrer">Buy with PayPal</a>`
-    : `<form class="buy-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
-        <input type="hidden" name="cmd" value="_xclick">
-        <input type="hidden" name="business" value="${PAYPAL_EMAIL}">
-        <input type="hidden" name="item_name" value="${title}">
-        <input type="hidden" name="item_number" value="${item}">
-        <input type="hidden" name="amount" value="${price}">
-        <input type="hidden" name="currency_code" value="USD">
-        <button class="btn btn-primary" type="submit">Buy with PayPal</button>
-      </form>`;
+  const sold = isSold(p);
+  const badges = [sold ? 'Sold' : status, p.featured ? 'Featured' : '', p.grade || '', p.year || '', p.variety || ''].filter(Boolean);
+  const details = [p.year, p.grade, p.variety, item].filter(Boolean).join(' · ');
+  const buyHtml = sold
+    ? `<div class="sold-box">SOLD</div>`
+    : `<div class="purchase-actions">
+        ${paypalForm(p, title, item, price)}
+        <button class="btn btn-secondary zelle-button" type="button" data-title="${title}" data-item="${item}" data-price="${money(price)}">Buy with Zelle</button>
+        <a class="btn btn-secondary contact-seller" href="mailto:${CONTACT_EMAIL}?subject=Inquiry%20about%20${encodeURIComponent(item)}%20-%20${encodeURIComponent(title)}">Contact Seller</a>
+      </div>`;
   return `
-    <article class="product-card reveal">
+    <article class="product-card reveal ${sold ? 'sold-card' : ''}">
+      ${sold ? '<div class="sold-ribbon">SOLD</div>' : ''}
       <button class="product-image-button" type="button" data-image="${image}" data-title="${title}" aria-label="View larger image of ${title}">
         <img src="${image}" alt="${title}" loading="lazy">
       </button>
@@ -45,7 +61,7 @@ function renderCard(p, i, category) {
         <p class="product-description">${p.description || ''}</p>
         <div class="product-meta">
           <strong class="product-price">${money(price)}</strong>
-          <span class="product-status">${status}</span>
+          <span class="product-status">${sold ? 'Sold' : status}</span>
         </div>
         ${buyHtml}
       </div>
@@ -66,6 +82,7 @@ function renderProducts() {
     if (sortValue === 'price-low') return priceNumber(a) - priceNumber(b);
     if (sortValue === 'price-high') return priceNumber(b) - priceNumber(a);
     if (sortValue === 'title') return String(a.title || '').localeCompare(String(b.title || ''));
+    if (sortValue === 'status') return String(a.status || '').localeCompare(String(b.status || ''));
     return 0;
   });
   if (!products.length) {
@@ -90,19 +107,56 @@ document.getElementById('product-search')?.addEventListener('input', renderProdu
 document.getElementById('product-sort')?.addEventListener('change', renderProducts);
 
 document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.product-image-button');
-  if (!btn) return;
-  const overlay = document.createElement('div');
-  overlay.className = 'image-modal';
-  overlay.innerHTML = `<button class="modal-close" aria-label="Close image">×</button><img src="${btn.dataset.image}" alt="${btn.dataset.title}"><p>${btn.dataset.title}</p>`;
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click', (event) => {
-    if (event.target === overlay || event.target.classList.contains('modal-close')) overlay.remove();
-  });
+  const imgBtn = e.target.closest('.product-image-button');
+  if (imgBtn) {
+    const overlay = document.createElement('div');
+    overlay.className = 'image-modal';
+    overlay.innerHTML = `<button class="modal-close" aria-label="Close image">×</button><img src="${imgBtn.dataset.image}" alt="${imgBtn.dataset.title}"><p>${imgBtn.dataset.title}</p>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay || event.target.classList.contains('modal-close')) overlay.remove();
+    });
+    return;
+  }
+
+  const zelleBtn = e.target.closest('.zelle-button');
+  if (zelleBtn) {
+    const title = zelleBtn.dataset.title;
+    const item = zelleBtn.dataset.item;
+    const price = zelleBtn.dataset.price;
+    const modal = document.createElement('div');
+    modal.className = 'zelle-modal';
+    modal.innerHTML = `
+      <div class="zelle-card">
+        <button class="modal-close" aria-label="Close Zelle instructions">×</button>
+        <p class="eyebrow">Buy with Zelle</p>
+        <h2>${title}</h2>
+        <div class="zelle-row"><span>Recipient</span><strong>${ZELLE_PHONE}</strong></div>
+        <div class="zelle-row"><span>Amount</span><strong>${price}</strong></div>
+        <div class="zelle-row"><span>Reference</span><strong>${item}</strong></div>
+        <p class="zelle-note">After payment, please email ${CONTACT_EMAIL} with your shipping address and item reference.</p>
+        <button class="btn btn-primary copy-zelle" type="button">Copy Zelle Phone</button>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.querySelector('.copy-zelle')?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(ZELLE_PHONE.replace(/[^0-9]/g, ''));
+        modal.querySelector('.copy-zelle').textContent = 'Copied';
+      } catch (_) {
+        modal.querySelector('.copy-zelle').textContent = ZELLE_PHONE;
+      }
+    });
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal || event.target.classList.contains('modal-close')) modal.remove();
+    });
+  }
 });
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') document.querySelector('.image-modal')?.remove();
+  if (e.key === 'Escape') {
+    document.querySelector('.image-modal')?.remove();
+    document.querySelector('.zelle-modal')?.remove();
+  }
 });
 
 renderProducts();
