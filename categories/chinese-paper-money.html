@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chinese Paper Money | Bayard Coin & Collectibles</title>
-  <meta name="description" content="Chinese banknotes and paper money inventory. Add images, denomination, year, grade, description and price here." />
+  <meta name="description" content="Browse Chinese paper money from the Qing Dynasty, Republic era, People’s Bank issues, provincial notes, and carefully selected collectible banknotes." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css" />
 </head>
 <body data-category="chinese-paper-money">
-  <div class="topbar">Trusted Dealer of Chinese Coins, World Coins & Collectibles <span></span> Integrity · Authenticity · Confidentiality</div>
+  <div class="topbar">Trusted Dealer of Chinese Machine-Struck Coins, Chinese Paper Money, Chinese Bullion & World Coins <span></span> Integrity · Authenticity · Confidentiality</div>
 
   <header class="site-header">
     <a class="brand" href="../index.html#home" aria-label="Bayard Coin & Collectibles home">
@@ -35,14 +35,14 @@
         <p class="eyebrow">Bayard Coin Inventory</p>
         <h1>Chinese Paper Money</h1>
         <div class="gold-line"></div>
-        <p>Chinese banknotes and paper money inventory. Add images, denomination, year, grade, description and price here.</p>
+        <p>Browse Chinese paper money from the Qing Dynasty, Republic era, People’s Bank issues, provincial notes, and carefully selected collectible banknotes.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#inventory">View Inventory <span>→</span></a>
           <a class="btn btn-secondary" href="mailto:info@bayardcoin.com">Ask a Question</a>
         </div>
       </div>
       <div class="page-hero-image reveal">
-        <img src="../assets/category-paper-money.jpg" alt="Chinese Paper Money" />
+        <img src="../assets/category-paper-money.JPG" alt="Chinese Paper Money" />
       </div>
     </section>
 
@@ -54,6 +54,17 @@
         </div>
         <p>Click “Buy with PayPal” to purchase directly. For combined shipping or private offers, contact <a href="mailto:info@bayardcoin.com">info@bayardcoin.com</a>.</p>
       </div>
+
+      <div class="inventory-controls reveal">
+        <input id="product-search" type="search" placeholder="Search title, grade, year, variety..." />
+        <select id="product-sort" aria-label="Sort products">
+          <option value="newest">Newest</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="title">Title A to Z</option>
+        </select>
+      </div>
+
       <div id="empty-inventory" class="empty-inventory reveal">
         <h3>Inventory Coming Soon</h3>
         <p>This category page is ready. Add products in <code>products.js</code> and they will appear here automatically.</p>
@@ -61,7 +72,7 @@
       <div id="inventory-grid" class="inventory-grid"></div>
 
       <div class="edit-guide reveal">
-        <strong>How to add items:</strong> upload coin photos into <code>assets</code>, then edit <code>products.js</code>. Add the product under <code>chinese-paper-money</code> with title, image path, price, description, item number and status.
+        <strong>How to add items:</strong> upload coin photos into <code>assets/coins</code>, then edit <code>products.js</code>. Add the product under <code>chinese-paper-money</code> with title, image path, price, description, item number, status, grade, and PayPal link if needed.
       </div>
     </section>
   </main>
