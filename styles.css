@@ -341,3 +341,14 @@ h1 { font-size: clamp(48px, 6vw, 86px); line-height: 1.05; letter-spacing: .02em
 .category-info small { display: none; }
 @media (max-width: 900px) { .sold-highlights-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .sold-highlights-grid { grid-template-columns: 1fr; } }
+
+/* V3.1 gallery and certification link */
+.product-gallery { background: #050505; border-bottom: 1px solid var(--line); }
+.product-gallery .product-image-button { border-bottom: 0; }
+.thumb-row { display: flex; gap: 8px; padding: 10px; border-top: 1px solid rgba(255,255,255,.08); overflow-x: auto; }
+.thumb-button { width: 64px; height: 64px; flex: 0 0 auto; border: 1px solid rgba(255,255,255,.14); background: #090909; border-radius: 6px; padding: 4px; cursor: pointer; }
+.thumb-button.active { border-color: rgba(217,168,51,.85); box-shadow: 0 0 0 2px rgba(217,168,51,.12); }
+.thumb-button img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.product-cert { margin: 8px 0 0; }
+.cert-link { color: var(--gold2); font-weight: 800; text-decoration: none; border-bottom: 1px solid rgba(217,168,51,.45); }
+.cert-link:hover { color: #fff0c4; }

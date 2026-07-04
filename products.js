@@ -1,30 +1,64 @@
-// Bayard Coin V3.1 inventory data
-// Add product photos to assets/coins/ and then add a product block below.
-// PayPal: the website creates a PayPal checkout button automatically from price.
-// Zelle: the website creates a Zelle instruction popup automatically.
-// Sold: change status from "Available" to "Sold" and the Buy buttons will disappear automatically.
+// Bayard Coin V3.1 Professional inventory data
+// Directory rule:
+// assets/products/chinese-machine-struck/
+// assets/products/chinese-paper-money/
+// assets/products/chinese-bullion/
+// assets/products/chinese-ancient-coin/
+// assets/products/world-coin/
+// assets/products/us-coin/
+//
+// For each product, upload images using the SKU naming rule:
+// bc-00001-1.jpg, bc-00001-2.jpg, bc-00001-3.jpg
+// Sold: change status from "available" to "sold" and buy buttons disappear.
 
 const PAYPAL_EMAIL = "wangjihang88@gmail.com";
 const ZELLE_PHONE = "412-330-8868";
 const CONTACT_EMAIL = "info@bayardcoin.com";
 const CURRENCY_CODE = "USD";
 
+const BAYARD_CATEGORY_IMAGES = {
+  "chinese-machine-struck-coins": "assets/category/chinese-machine-struck.jpg",
+  "chinese-paper-money": "assets/category/chinese-paper-money.JPG",
+  "chinese-bullion": "assets/category/chinese-bullion.jpg",
+  "chinese-ancient-coins": "assets/category/chinese-ancient-coin.jpg",
+  "world-coins": "assets/category/world-coin.jpg",
+  "us-coins": "assets/category/us-coin.jpg"
+};
+
 const BAYARD_PRODUCTS = {
   "chinese-machine-struck-coins": [
-    // Example product. Delete or replace when ready.
-    // {
-    //   title: "1908 Chihli Dragon Dollar",
-    //   year: "1908",
-    //   grade: "PCGS AU55",
-    //   variety: "Y-73",
-    //   image: "../assets/coins/1908-chihli-dragon-dollar.jpg",
-    //   price: "1250.00",
-    //   description: "Original luster with attractive toning. Add certification number and condition notes here.",
-    //   itemNumber: "BC-0001",
-    //   status: "Available",
-    //   featured: true,
-    //   paypalLink: ""
-    // }
+    {
+      id: "bc-00001",
+      itemNumber: "BC-00001",
+      sku: "BC-00001",
+      category: "chinese-machine-struck-coins",
+      status: "available",
+      featured: true,
+
+      title: "CHINA. Yunnan. Tael, ND (1943–44)",
+      country: "China",
+      province: "Yunnan",
+      denomination: "Tael",
+      year: "ND (1943–44)",
+      variety: "Small stag's head",
+
+      certification: "PCGS",
+      gradingService: "PCGS",
+      grade: "AU-58",
+      certNumber: "42439997",
+      certLink: "https://www.pcgs.com/cert/42439997",
+
+      price: "6000.00",
+      currency: "USD",
+
+      images: [
+        "../assets/products/chinese-machine-struck/bc-00001-1.jpg",
+        "../assets/products/chinese-machine-struck/bc-00001-2.jpg",
+        "../assets/products/chinese-machine-struck/bc-00001-3.jpg"
+      ],
+
+      description: "Variety with small stag's head. A lovely Mint State Tael, displaying softly glowing luster and attractive, balanced coloration. Strong cartwheel luster radiates across both surfaces, enhancing the overall eye appeal."
+    }
   ],
   "chinese-paper-money": [],
   "chinese-bullion": [],

@@ -1,33 +1,38 @@
 BayardCoin V3.1 Professional
 
-New features:
-- PayPal checkout uses wangjihang88@gmail.com.
-- Zelle purchase popup uses 412-330-8868.
-- Sold status is supported. Change status: "Available" to status: "Sold" in products.js.
-- Sold items hide Buy buttons and show SOLD ribbon.
-- Homepage Previous Sold Highlights is generated automatically from sold products.
-- Category numbers 01/02/03 are hidden/removed.
+What's new:
+- Assets are organized by folder: logo, hero, category, icons, products.
+- Product images are organized by category under assets/products/.
+- Product BC-00001 has been added under Chinese Machine-Struck Coins.
+- PayPal is set to wangjihang88@gmail.com.
+- Zelle is set to 412-330-8868.
+- PCGS cert link is supported.
+- Product gallery supports multiple images.
+- Sold status is supported. Change status: "available" to status: "sold" in products.js.
 
-How to add a coin:
-1. Upload the coin photo to assets/coins/
-2. Open products.js
-3. Add a product block under the correct category.
-4. Set price, itemNumber, grade, description, status.
+Folder structure:
+assets/
+  logo/
+  hero/
+  category/
+  icons/
+  products/
+    chinese-machine-struck/
+    chinese-paper-money/
+    chinese-bullion/
+    chinese-ancient-coin/
+    world-coin/
+    us-coin/
 
-Example:
-{
-  title: "1908 Chihli Dragon Dollar",
-  year: "1908",
-  grade: "PCGS AU55",
-  variety: "Y-73",
-  image: "../assets/coins/1908-chihli-dragon-dollar.jpg",
-  price: "1250.00",
-  description: "Original luster with attractive toning.",
-  itemNumber: "BC-0001",
-  status: "Available",
-  featured: true,
-  paypalLink: ""
-}
+First product image names to upload:
+assets/products/chinese-machine-struck/bc-00001-1.jpg
+assets/products/chinese-machine-struck/bc-00001-2.jpg
+assets/products/chinese-machine-struck/bc-00001-3.jpg
 
-When sold, change only this line:
-status: "Sold"
+How to add a new product:
+1. Upload images into the matching assets/products/category-folder.
+2. Open products.js.
+3. Copy an existing product block.
+4. Change id, itemNumber, title, price, status, images, description, grade, and certLink.
+5. Commit changes to GitHub.
+6. Cloudflare Pages will redeploy automatically.

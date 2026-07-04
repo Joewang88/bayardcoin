@@ -13,6 +13,10 @@ function observeReveals() {
 window.observeReveals = observeReveals;
 observeReveals();
 
+function soldImage(p) {
+  const img = (Array.isArray(p.images) && p.images.length) ? p.images[0] : (p.image || 'assets/category/chinese-machine-struck.jpg');
+  return img.replace(/^\.\.\//, '');
+}
 function renderSoldHighlights() {
   const mount = document.getElementById('sold-highlights-grid');
   const empty = document.querySelector('.empty-highlight');
@@ -28,7 +32,7 @@ function renderSoldHighlights() {
   if (empty) empty.style.display = 'none';
   mount.innerHTML = sold.map(p => `
     <article class="highlight-card reveal">
-      <img src="${(p.image || 'assets/category-chinese-coins.jpg').replace('../','')}" alt="${p.title || 'Sold coin'}" loading="lazy">
+      <img src="${soldImage(p)}" alt="${p.title || 'Sold coin'}" loading="lazy" onerror="this.src='assets/category/chinese-machine-struck.jpg'">
       <div><span>SOLD</span><h3>${p.title || 'Sold Coin'}</h3><p>${[p.itemNumber, p.year, p.grade].filter(Boolean).join(' · ')}</p></div>
     </article>`).join('');
   observeReveals();
