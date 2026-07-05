@@ -1,10 +1,8 @@
-// BayardCoin V5 Pro configuration
-// 1) Create a Supabase project
-// 2) Paste your Project URL and anon public key below
-// 3) Upload this file with your website
+// BayardCoin CMS configuration
+// Replace the two values below with your Supabase Project URL and Publishable key.
 window.BAYARD_SUPABASE = {
-  url: "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE",
-  anonKey: "PASTE_YOUR_SUPABASE_ANON_PUBLIC_KEY_HERE",
+  url: "https://inqvouwyuejgbadygxjm.supabase.co",
+  publishableKey: "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE",
   storageBucket: "product-images"
 };
 
@@ -12,5 +10,6 @@ window.BAYARD_STORE = {
   paypalEmail: "wangjihang88@gmail.com",
   zellePhone: "412-330-8868",
   contactEmail: "info@bayardcoin.com",
+  phone: "412-330-8868",
   currency: "USD"
 };
