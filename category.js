@@ -19,13 +19,7 @@ function firstImage(p, category) {
   const categoryImg = (window.BAYARD_CATEGORY_IMAGES || {})[category] || 'assets/category/chinese-machine-struck.jpg';
   return '../' + categoryImg.replace(/^\.\.\//, '');
 }
-function fixImagePath(path) {
-  if (!path) return path;
-  if (/^https?:\/\//.test(path)) return path;
-  if (path.startsWith("../")) return path;
-  if (path.startsWith("assets/")) return "../" + path;
-  return path;
-}
+
 function paypalForm(p, title, item, price) {
   if (p.paypalLink) return `<a class="btn btn-primary buy-link" href="${p.paypalLink}" target="_blank" rel="noopener noreferrer">Buy with PayPal</a>`;
   return `<form class="buy-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
@@ -94,14 +88,6 @@ function normalizeProduct(p) {
     else if (p.cover_image) normalized.images = [p.cover_image];
     else if (p.image_url) normalized.images = [p.image_url];
   }
-
-  if (Array.isArray(normalized.images)) {
-  normalized.images = normalized.images.map(fixImagePath);
-  }
-  
-  if (normalized.image) {
-    normalized.image = fixImagePath(normalized.image);
-
   return normalized;
 }
 
