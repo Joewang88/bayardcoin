@@ -72,13 +72,20 @@ function renderCard(p, i, category) {
       </div>
     </article>`;
 }
+function getBayardProducts() {
+  try {
+    const saved = localStorage.getItem('bayard_products_v5');
+    if (saved) return JSON.parse(saved);
+  } catch (_) {}
+  return (window.BAYARD_PRODUCTS || (typeof BAYARD_PRODUCTS !== 'undefined' ? BAYARD_PRODUCTS : {}));
+}
 function renderProducts() {
   const mount = document.getElementById('inventory-grid');
   const empty = document.getElementById('empty-inventory');
   const search = document.getElementById('product-search');
   const sort = document.getElementById('product-sort');
   const category = document.body.dataset.category;
-  const all = (window.BAYARD_PRODUCTS || BAYARD_PRODUCTS || {})[category] || [];
+  const all = (getBayardProducts() || {})[category] || [];
   const q = (search?.value || '').trim().toLowerCase();
   let products = all.filter(p => !q || productText(p).includes(q));
   const sortValue = sort?.value || 'newest';

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bayard Admin | Coin Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="admin-page">
+  <header class="admin-header">
+    <div><p class="eyebrow">Bayard Coin & Collectibles</p><h1>V5 Coin Manager</h1></div>
+    <nav><a class="btn btn-secondary" href="index.html">View Site</a><button class="btn btn-primary" id="exportJs">Export products.js</button></nav>
+  </header>
+  <main class="admin-shell">
+    <section class="admin-panel">
+      <h2>Add / Edit Coin</h2>
+      <form id="coinForm" class="admin-form">
+        <input type="hidden" id="editKey" />
+        <label>Category<select id="category"></select></label>
+        <div class="grid-2"><label>Item Number<input id="itemNumber" placeholder="00002" required /></label><label>Status<select id="status"><option value="available">Available</option><option value="sold">Sold</option></select></label></div>
+        <label>Title<input id="title" placeholder="CHINA. Yunnan. Tael, ND (1943–44)" required /></label>
+        <div class="grid-3"><label>Country<input id="country" /></label><label>Province<input id="province" /></label><label>Year<input id="year" /></label></div>
+        <div class="grid-3"><label>Denomination<input id="denomination" /></label><label>Variety<input id="variety" /></label><label>Grade<input id="grade" placeholder="PCGS AU-58" /></label></div>
+        <div class="grid-3"><label>Certification<input id="certification" placeholder="PCGS" /></label><label>Cert Number<input id="certNumber" /></label><label>Price USD<input id="price" placeholder="6000.00" /></label></div>
+        <label>PCGS / NGC Cert Link<input id="certLink" placeholder="https://www.pcgs.com/cert/..." /></label>
+        <label>Image URLs, one per line<textarea id="images" rows="4" placeholder="../assets/products/chinese-machine-struck/00002-1.jpg"></textarea></label>
+        <label>Description<textarea id="description" rows="5"></textarea></label>
+        <div class="admin-actions"><button class="btn btn-primary" type="submit">Save Coin</button><button class="btn btn-secondary" type="button" id="clearForm">Clear</button><button class="btn btn-danger" type="button" id="deleteCoin">Delete</button></div>
+      </form>
+      <div class="admin-note"><strong>Important:</strong> Save works in this browser immediately. To make the public website update for everyone, click <b>Export products.js</b>, then replace your GitHub <code>products.js</code> file.</div>
+    </section>
+    <section class="admin-panel">
+      <div class="admin-toolbar"><h2>Inventory</h2><input id="searchAdmin" placeholder="Search coins..." /></div>
+      <div id="adminList" class="admin-list"></div>
+    </section>
+  </main>
+  <script src="products.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
