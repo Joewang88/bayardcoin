@@ -14,10 +14,24 @@ function isSold(p) {
   return String(p.status || '').toLowerCase() === 'sold';
 }
 function firstImage(p, category) {
-  if (Array.isArray(p.images) && p.images.length) return p.images[0];
-  if (p.image) return p.image;
+  if (Array.isArray(p.images) && p.images.length) {
+    return fixImagePath(p.images[0]);
+  }
+
+  if (p.image) {
+    return fixImagePath(p.image);
+  }
+
   const categoryImg = (window.BAYARD_CATEGORY_IMAGES || {})[category] || 'assets/category/chinese-machine-struck.jpg';
   return '../' + categoryImg.replace(/^\.\.\//, '');
+}
+
+function fixImagePath(path) {
+  if (!path) return path;
+  if (/^https?:\/\//.test(path)) return path;
+  if (path.startsWith('../')) return path;
+  if (path.startsWith('assets/')) return '../' + path;
+  return path;
 }
 
 function paypalForm(p, title, item, price) {
@@ -33,7 +47,7 @@ function paypalForm(p, title, item, price) {
   </form>`;
 }
 function renderGallery(p, category, title) {
-  const imgs = (Array.isArray(p.images) && p.images.length ? p.images : [firstImage(p, category)]);
+  const imgs = (Array.isArray(p.images) && p.images.length ? p.images : [firstImage(p, category)]).map(fixImagePath);
   const main = imgs[0];
   return `<div class="product-gallery">
     <button class="product-image-button" type="button" data-image="${main}" data-title="${title}" aria-label="View larger image of ${title}">
