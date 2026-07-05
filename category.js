@@ -1,65 +1,7 @@
-const CATEGORY_FALLBACK_IMAGE = '../assets/category/chinese-machine-struck.jpg';
-
-function storeCfg() { return window.BAYARD_STORE || {}; }
-function paypalEmail() { return storeCfg().paypalEmail || window.PAYPAL_EMAIL || 'wangjihang88@gmail.com'; }
-function zellePhone() { return storeCfg().zellePhone || window.ZELLE_PHONE || '412-330-8868'; }
-function contactEmail() { return storeCfg().contactEmail || window.CONTACT_EMAIL || 'info@bayardcoin.com'; }
-function currencyCode() { return storeCfg().currency || window.CURRENCY_CODE || 'USD'; }
-
-function supabaseReady() {
-  const c = window.BAYARD_SUPABASE || {};
-  return window.supabase && c.url && c.anonKey && !c.url.includes('PASTE_YOUR') && !c.anonKey.includes('PASTE_YOUR');
-}
-function getClient() {
-  if (!supabaseReady()) return null;
-  if (!window.__bayardSupabase) window.__bayardSupabase = window.supabase.createClient(window.BAYARD_SUPABASE.url, window.BAYARD_SUPABASE.anonKey);
-  return window.__bayardSupabase;
-}
-function normalizeProduct(row) {
-  return {
-    id: row.id,
-    itemNumber: row.item_number || row.itemNumber || row.id,
-    sku: row.sku || row.id,
-    category: row.category,
-    status: row.status || 'available',
-    featured: !!row.featured,
-    title: row.title || 'Untitled Coin',
-    country: row.country || '',
-    province: row.province || '',
-    denomination: row.denomination || '',
-    year: row.year || '',
-    variety: row.variety || '',
-    certification: row.certification || '',
-    gradingService: row.grading_service || row.gradingService || '',
-    grade: row.grade || '',
-    certNumber: row.cert_number || row.certNumber || '',
-    certLink: row.cert_link || row.certLink || '',
-    price: row.price == null ? '' : String(row.price),
-    currency: row.currency || currencyCode(),
-    images: Array.isArray(row.images) ? row.images : [],
-    description: row.description || '',
-    createdAt: row.created_at || row.createdAt || ''
-  };
-}
-async function loadProductsForCategory(category) {
-  const client = getClient();
-  if (!client) return ((window.BAYARD_PRODUCTS || {})[category] || []).map(normalizeProduct);
-  const { data, error } = await client
-    .from('products')
-    .select('*')
-    .eq('category', category)
-    .order('created_at', { ascending: false });
-  if (error) {
-    console.warn('Supabase load failed; using products.js fallback:', error.message);
-    return ((window.BAYARD_PRODUCTS || {})[category] || []).map(normalizeProduct);
-  }
-  return (data || []).map(normalizeProduct);
-}
-
 function money(value) {
   const n = Number(String(value || '').replace(/[^0-9.]/g, ''));
   if (Number.isFinite(n) && n > 0) return `$${n.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  return value || 'Contact for price';
+  return value || "Contact for price";
 }
 function productText(p) {
   return [p.title, p.country, p.province, p.denomination, p.year, p.grade, p.variety, p.certNumber, p.description, p.itemNumber, p.status].filter(Boolean).join(' ').toLowerCase();
@@ -68,7 +10,9 @@ function priceNumber(p) {
   const n = Number(String(p.price || '').replace(/[^0-9.]/g, ''));
   return Number.isFinite(n) ? n : 0;
 }
-function isSold(p) { return String(p.status || '').toLowerCase() === 'sold'; }
+function isSold(p) {
+  return String(p.status || '').toLowerCase() === 'sold';
+}
 function firstImage(p, category) {
   if (Array.isArray(p.images) && p.images.length) return p.images[0];
   if (p.image) return p.image;
@@ -79,11 +23,11 @@ function paypalForm(p, title, item, price) {
   if (p.paypalLink) return `<a class="btn btn-primary buy-link" href="${p.paypalLink}" target="_blank" rel="noopener noreferrer">Buy with PayPal</a>`;
   return `<form class="buy-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
     <input type="hidden" name="cmd" value="_xclick">
-    <input type="hidden" name="business" value="${paypalEmail()}">
+    <input type="hidden" name="business" value="${PAYPAL_EMAIL}">
     <input type="hidden" name="item_name" value="${title}">
     <input type="hidden" name="item_number" value="${item}">
     <input type="hidden" name="amount" value="${price}">
-    <input type="hidden" name="currency_code" value="${p.currency || currencyCode()}">
+    <input type="hidden" name="currency_code" value="${p.currency || CURRENCY_CODE || 'USD'}">
     <button class="btn btn-primary" type="submit">Buy with PayPal</button>
   </form>`;
 }
@@ -92,7 +36,7 @@ function renderGallery(p, category, title) {
   const main = imgs[0];
   return `<div class="product-gallery">
     <button class="product-image-button" type="button" data-image="${main}" data-title="${title}" aria-label="View larger image of ${title}">
-      <img class="product-main-img" src="${main}" alt="${title}" loading="lazy" onerror="this.src='${CATEGORY_FALLBACK_IMAGE}'">
+      <img class="product-main-img" src="${main}" alt="${title}" loading="lazy" onerror="this.src='../assets/category/chinese-machine-struck.jpg'">
     </button>
     ${imgs.length > 1 ? `<div class="thumb-row">${imgs.map((src, idx) => `<button class="thumb-button ${idx===0?'active':''}" type="button" data-src="${src}" aria-label="Show image ${idx+1}"><img src="${src}" alt="${title} image ${idx+1}" loading="lazy" onerror="this.style.opacity=.25"></button>`).join('')}</div>` : ''}
   </div>`;
@@ -101,26 +45,42 @@ function renderCard(p, i, category) {
   const title = p.title || 'Untitled Coin';
   const price = p.price || '';
   const item = p.itemNumber || p.sku || `${category}-${i+1}`;
+  const status = p.status || 'available';
   const sold = isSold(p);
   const cert = p.certLink ? `<a class="cert-link" href="${p.certLink}" target="_blank" rel="noopener noreferrer">${p.certification || p.gradingService || 'Cert'} #${p.certNumber || ''}</a>` : '';
   const badges = [sold ? 'Sold' : 'Available', p.featured ? 'Featured' : '', p.gradingService || p.certification || '', p.grade || '', p.year || ''].filter(Boolean);
   const details = [item, p.country, p.province, p.denomination, p.variety].filter(Boolean).join(' · ');
-  const buyHtml = sold ? `<div class="sold-box">SOLD</div>` : `<div class="purchase-actions">
+  const buyHtml = sold
+    ? `<div class="sold-box">SOLD</div>`
+    : `<div class="purchase-actions">
         ${paypalForm(p, title, item, price)}
         <button class="btn btn-secondary zelle-button" type="button" data-title="${title}" data-item="${item}" data-price="${money(price)}">Buy with Zelle</button>
-        <a class="btn btn-secondary contact-seller" href="mailto:${contactEmail()}?subject=Inquiry%20about%20${encodeURIComponent(item)}%20-%20${encodeURIComponent(title)}">Contact Seller</a>
+        <a class="btn btn-secondary contact-seller" href="mailto:${CONTACT_EMAIL}?subject=Inquiry%20about%20${encodeURIComponent(item)}%20-%20${encodeURIComponent(title)}">Contact Seller</a>
       </div>`;
-  return `<article class="product-card reveal ${sold ? 'sold-card' : ''}">${sold ? '<div class="sold-ribbon">SOLD</div>' : ''}${renderGallery(p, category, title)}<div class="product-body"><div class="product-badges">${badges.map(b => `<span>${b}</span>`).join('')}</div><h3>${title}</h3>${details ? `<p class="product-details">${details}</p>` : ''}${cert ? `<p class="product-cert">${cert}</p>` : ''}<p class="product-description">${p.description || ''}</p><div class="product-meta"><strong class="product-price">${money(price)}</strong><span class="product-status">${sold ? 'Sold' : 'Available'}</span></div>${buyHtml}</div></article>`;
+  return `
+    <article class="product-card reveal ${sold ? 'sold-card' : ''}">
+      ${sold ? '<div class="sold-ribbon">SOLD</div>' : ''}
+      ${renderGallery(p, category, title)}
+      <div class="product-body">
+        <div class="product-badges">${badges.map(b => `<span>${b}</span>`).join('')}</div>
+        <h3>${title}</h3>
+        ${details ? `<p class="product-details">${details}</p>` : ''}
+        ${cert ? `<p class="product-cert">${cert}</p>` : ''}
+        <p class="product-description">${p.description || ''}</p>
+        <div class="product-meta"><strong class="product-price">${money(price)}</strong><span class="product-status">${sold ? 'Sold' : 'Available'}</span></div>
+        ${buyHtml}
+      </div>
+    </article>`;
 }
-let BAYARD_CURRENT_PRODUCTS = [];
 function renderProducts() {
   const mount = document.getElementById('inventory-grid');
   const empty = document.getElementById('empty-inventory');
   const search = document.getElementById('product-search');
   const sort = document.getElementById('product-sort');
   const category = document.body.dataset.category;
+  const all = (window.BAYARD_PRODUCTS || BAYARD_PRODUCTS || {})[category] || [];
   const q = (search?.value || '').trim().toLowerCase();
-  let products = BAYARD_CURRENT_PRODUCTS.filter(p => !q || productText(p).includes(q));
+  let products = all.filter(p => !q || productText(p).includes(q));
   const sortValue = sort?.value || 'newest';
   products = products.slice().sort((a,b) => {
     if (sortValue === 'price-low') return priceNumber(a) - priceNumber(b);
@@ -129,15 +89,14 @@ function renderProducts() {
     if (sortValue === 'status') return String(a.status || '').localeCompare(String(b.status || ''));
     return 0;
   });
-  if (!products.length) { if (mount) mount.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+  if (!products.length) {
+    if (mount) mount.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
   if (empty) empty.style.display = 'none';
   mount.innerHTML = products.map((p, i) => renderCard(p, i, category)).join('');
   if (window.observeReveals) window.observeReveals();
-}
-async function initProducts() {
-  const category = document.body.dataset.category;
-  BAYARD_CURRENT_PRODUCTS = await loadProductsForCategory(category);
-  renderProducts();
 }
 document.getElementById('product-search')?.addEventListener('input', renderProducts);
 document.getElementById('product-sort')?.addEventListener('change', renderProducts);
@@ -165,11 +124,11 @@ document.addEventListener('click', (e) => {
   if (zelleBtn) {
     const modal = document.createElement('div');
     modal.className = 'zelle-modal';
-    modal.innerHTML = `<div class="zelle-card"><button class="modal-close" aria-label="Close Zelle instructions">×</button><p class="eyebrow">Buy with Zelle</p><h2>${zelleBtn.dataset.title}</h2><div class="zelle-row"><span>Recipient</span><strong>${zellePhone()}</strong></div><div class="zelle-row"><span>Amount</span><strong>${zelleBtn.dataset.price}</strong></div><div class="zelle-row"><span>Reference</span><strong>${zelleBtn.dataset.item}</strong></div><p class="zelle-note">After payment, please email ${contactEmail()} with your shipping address and item reference.</p><button class="btn btn-primary copy-zelle" type="button">Copy Zelle Phone</button></div>`;
+    modal.innerHTML = `<div class="zelle-card"><button class="modal-close" aria-label="Close Zelle instructions">×</button><p class="eyebrow">Buy with Zelle</p><h2>${zelleBtn.dataset.title}</h2><div class="zelle-row"><span>Recipient</span><strong>${ZELLE_PHONE}</strong></div><div class="zelle-row"><span>Amount</span><strong>${zelleBtn.dataset.price}</strong></div><div class="zelle-row"><span>Reference</span><strong>${zelleBtn.dataset.item}</strong></div><p class="zelle-note">After payment, please email ${CONTACT_EMAIL} with your shipping address and item reference.</p><button class="btn btn-primary copy-zelle" type="button">Copy Zelle Phone</button></div>`;
     document.body.appendChild(modal);
-    modal.querySelector('.copy-zelle')?.addEventListener('click', async () => { try { await navigator.clipboard.writeText(zellePhone().replace(/[^0-9]/g, '')); modal.querySelector('.copy-zelle').textContent = 'Copied'; } catch (_) { modal.querySelector('.copy-zelle').textContent = zellePhone(); } });
+    modal.querySelector('.copy-zelle')?.addEventListener('click', async () => { try { await navigator.clipboard.writeText(ZELLE_PHONE.replace(/[^0-9]/g, '')); modal.querySelector('.copy-zelle').textContent = 'Copied'; } catch (_) { modal.querySelector('.copy-zelle').textContent = ZELLE_PHONE; } });
     modal.addEventListener('click', (event) => { if (event.target === modal || event.target.classList.contains('modal-close')) modal.remove(); });
   }
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { document.querySelector('.image-modal')?.remove(); document.querySelector('.zelle-modal')?.remove(); } });
-initProducts();
+renderProducts();
