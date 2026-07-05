@@ -68,12 +68,12 @@
 
       <div id="empty-inventory" class="empty-inventory reveal">
         <h3>Inventory Coming Soon</h3>
-        <p>This category page is ready. Add products in <code>admin.html</code> or <code>products.js</code> and they will appear here automatically.</p>
+        <p>This category page is ready. Add products in <code>admin-pro.html</code> and they will appear here automatically.</p>
       </div>
       <div id="inventory-grid" class="inventory-grid"></div>
 
       <div class="edit-guide reveal">
-        <strong>V5 easier way:</strong> open <code>../admin.html</code> to add, edit, mark sold, or export your inventory. PayPal, Zelle, sold status, search, sorting, and cert links are generated automatically.
+        <strong>How to add items:</strong> open <code>admin-pro.html</code>, log in, upload photos, and save the coin under <code>chinese-bullion</code> with title, images, price, description, item number, status, grade, and cert link. PayPal and Zelle buttons are generated automatically.
       </div>
     </section>
   </main>
@@ -82,6 +82,8 @@
     <p>© <span id="year"></span> Bayard Coin & Collectibles. All rights reserved.</p>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../config.js"></script>
   <script src="../products.js"></script>
   <script src="../script.js"></script>
   <script src="../category.js"></script>
