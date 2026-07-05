@@ -72,13 +72,56 @@ function renderCard(p, i, category) {
       </div>
     </article>`;
 }
-function renderProducts() {
+function normalizeProduct(p) {
+  const normalized = { ...p };
+
+  normalized.itemNumber = p.itemNumber || p.item_number || p.sku || p.id;
+  normalized.certNumber = p.certNumber || p.cert_number;
+  normalized.certLink = p.certLink || p.cert_link || p.cert_url;
+  normalized.gradingService = p.gradingService || p.grading_service;
+  normalized.paypalLink = p.paypalLink || p.paypal_link;
+
+  if (!normalized.images) {
+    if (Array.isArray(p.image_urls)) normalized.images = p.image_urls;
+    else if (Array.isArray(p.images)) normalized.images = p.images;
+    else if (p.cover_image) normalized.images = [p.cover_image];
+    else if (p.image_url) normalized.images = [p.image_url];
+  }
+
+  return normalized;
+}
+
+let categoryProductsCache = null;
+
+async function loadCategoryProducts(category) {
+  const localProducts = (window.BAYARD_PRODUCTS || BAYARD_PRODUCTS || {})[category] || [];
+
+  if (typeof getProducts !== "function") {
+    return localProducts;
+  }
+
+  try {
+    if (!categoryProductsCache) {
+      categoryProductsCache = await getProducts(category);
+    }
+
+    if (Array.isArray(categoryProductsCache) && categoryProductsCache.length) {
+      return categoryProductsCache.map(normalizeProduct);
+    }
+  } catch (err) {
+    console.error("Could not load Supabase products. Falling back to products.js.", err);
+  }
+
+  return localProducts;
+}
+
+async function renderProducts() {
   const mount = document.getElementById('inventory-grid');
   const empty = document.getElementById('empty-inventory');
   const search = document.getElementById('product-search');
   const sort = document.getElementById('product-sort');
   const category = document.body.dataset.category;
-  const all = (window.BAYARD_PRODUCTS || BAYARD_PRODUCTS || {})[category] || [];
+  const all = await loadCategoryProducts(category);
   const q = (search?.value || '').trim().toLowerCase();
   let products = all.filter(p => !q || productText(p).includes(q));
   const sortValue = sort?.value || 'newest';
