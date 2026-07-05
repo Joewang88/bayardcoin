@@ -3,5 +3,5 @@ window.CONFIG = {
   SUPABASE_URL: "https://inqvouwyuejgbadygxjm.supabase.co",
 
   // Replace this with your Supabase Publishable Key
-  SUPABASE_KEY: "PASTE_YOUR_PUBLISHABLE_KEY_HERE"
+  SUPABASE_KEY: "sb_publishable_j3Dcvplqkhm9yBMm6oXmFw_r5eHdS11"
 };
