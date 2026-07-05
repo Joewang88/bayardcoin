@@ -61,7 +61,7 @@ function paypalForm(p, title, item, price) {
   </form>`;
 }
 function renderGallery(p, category, title) {
-  const imgs = (Array.isArray(p.images) && p.images.length ? p.images : [firstImage(p, category)]);
+  const imgs = (Array.isArray(p.images) && p.images.length ? p.images : [firstImage(p, category)]).map(fixImagePath);
   const main = imgs[0];
   return `<div class="product-gallery">
     <button class="product-image-button" type="button" data-image="${main}" data-title="${title}" aria-label="View larger image of ${title}">
