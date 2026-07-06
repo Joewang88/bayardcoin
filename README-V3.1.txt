@@ -25,9 +25,7 @@ assets/
     us-coin/
 
 First product image names to upload:
-assets/products/chinese-machine-struck/bc-00001-1.jpg
-assets/products/chinese-machine-struck/bc-00001-2.jpg
-assets/products/chinese-machine-struck/bc-00001-3.jpg
+
 
 How to add a new product:
 1. Upload images into the matching assets/products/category-folder.

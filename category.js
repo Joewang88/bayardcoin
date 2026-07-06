@@ -13,6 +13,21 @@ function priceNumber(p) {
 function isSold(p) {
   return String(p.status || '').toLowerCase() === 'sold';
 }
+
+function selectedCoinParam() {
+  const params = new URLSearchParams(window.location.search);
+  const coin = params.get('coin');
+  return coin ? String(coin).trim().toLowerCase() : '';
+}
+
+function productIdentityList(p) {
+  return [
+    p.id,
+    p.itemNumber,
+    p.item_number,
+    p.sku
+  ].filter(Boolean).map(x => String(x).trim().toLowerCase());
+}
 function firstImage(p, category) {
   if (Array.isArray(p.images) && p.images.length) {
     return fixImagePath(p.images[0]);
@@ -88,7 +103,7 @@ function renderCard(p, i, category) {
         <a class="btn btn-secondary contact-seller" href="mailto:${CONTACT_EMAIL}?subject=Inquiry%20about%20${encodeURIComponent(item)}%20-%20${encodeURIComponent(title)}">Contact Seller</a>
       </div>`;
   return `
-    <article class="product-card reveal ${sold ? 'sold-card' : ''}">
+    <article id="${String(p.id || item).toLowerCase()}" class="product-card reveal ${sold ? 'sold-card' : ''}">
       ${sold ? '<div class="sold-ribbon">SOLD</div>' : ''}
       ${renderGallery(p, category, title)}
       <div class="product-body">
@@ -123,10 +138,8 @@ function normalizeProduct(p) {
 let categoryProductsCache = null;
 
 async function loadCategoryProducts(category) {
-  const localProducts = (window.BAYARD_PRODUCTS || BAYARD_PRODUCTS || {})[category] || [];
-
   if (typeof getProducts !== "function") {
-    return localProducts;
+    return [];
   }
 
   try {
@@ -134,14 +147,13 @@ async function loadCategoryProducts(category) {
       categoryProductsCache = await getProducts(category);
     }
 
-    if (Array.isArray(categoryProductsCache) && categoryProductsCache.length) {
-      return categoryProductsCache.map(normalizeProduct);
-    }
+    return Array.isArray(categoryProductsCache)
+      ? categoryProductsCache.map(normalizeProduct)
+      : [];
   } catch (err) {
-    console.error("Could not load Supabase products. Falling back to products.js.", err);
+    console.error("Could not load Supabase products.", err);
+    return [];
   }
-
-  return localProducts;
 }
 
 async function renderProducts() {
@@ -151,8 +163,12 @@ async function renderProducts() {
   const sort = document.getElementById('product-sort');
   const category = document.body.dataset.category;
   const all = await loadCategoryProducts(category);
-  const q = (search?.value || '').trim().toLowerCase();
-  let products = all.filter(p => !q || productText(p).includes(q));
+  const selectedCoin = selectedCoinParam();
+  const q = selectedCoin || (search?.value || '').trim().toLowerCase();
+  if (selectedCoin && search) search.value = selectedCoin;
+  let products = selectedCoin
+    ? all.filter(p => productIdentityList(p).includes(selectedCoin))
+    : all.filter(p => !q || productText(p).includes(q));
   const sortValue = sort?.value || 'newest';
   products = products.slice().sort((a,b) => {
     if (sortValue === 'price-low') return priceNumber(a) - priceNumber(b);
