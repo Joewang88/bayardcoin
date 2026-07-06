@@ -18,7 +18,7 @@
     .btn.primary{background:var(--gold);color:#1b1305}.btn.danger{background:rgba(199,92,92,.15);border-color:rgba(199,92,92,.5);color:#ffd0d0}.btn.ghost{background:transparent}.btn.ok{background:rgba(143,191,119,.16);border-color:rgba(143,191,119,.55);color:#d9ffd0}
     .msg{margin:14px 0;color:var(--muted)}.msg.ok{color:var(--ok)}.msg.err{color:#ffb0b0}.small{font-size:12px;color:var(--muted)}
     table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border-bottom:1px solid rgba(217,168,51,.16);padding:12px;text-align:left;vertical-align:top}th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
-    .thumb{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}.badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px}.sold{color:#ffb0b0}.available{color:#bff0a8}.quick-actions{display:flex;gap:8px;flex-wrap:wrap}.preview-img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}.preview-item{position:relative;display:inline-flex}.remove-img{position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:#3a120f;color:#ffd0d0;cursor:pointer;font-weight:700;line-height:18px}
+    .thumb{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}.badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px}.sold{color:#ffb0b0}.available{color:#bff0a8}.quick-actions{display:flex;gap:8px;flex-wrap:wrap}.preview-img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}.preview-item{position:relative;display:inline-flex;cursor:grab}.remove-img{position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:#3a120f;color:#ffd0d0;cursor:pointer;font-weight:700;line-height:18px}.img-index{position:absolute;top:-8px;left:-8px;min-width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:#0b0b0b;color:var(--gold);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}.cover-btn{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);height:24px;border-radius:999px;border:1px solid var(--border);background:#1d1609;color:var(--gold);cursor:pointer;font-size:12px;padding:0 8px}.preview-item.is-cover .img-index{background:var(--gold);color:#1b1305}.preview-item.is-cover .cover-btn{background:var(--gold);color:#1b1305}
     @media(max-width:800px){.grid{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.hide-mobile{display:none}}
   </style>
 </head>
@@ -192,21 +192,69 @@
       updateImagePreview();
     }
 
+
+    function moveImageToCover(index) {
+      const lines = $("images").value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+      if (index <= 0 || index >= lines.length) return;
+
+      const moved = lines.splice(index, 1)[0];
+      lines.unshift(moved);
+      $("images").value = lines.join("\n");
+      updateImagePreview();
+    }
+
     function updateImagePreview() {
       const preview = $("imagePreview");
       if (!preview) return;
       const lines = $("images").value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
       preview.innerHTML = lines.slice(0, 12).map((src, idx) => {
         const url = publicImageUrl(src);
-        return `<span class="preview-item">
+        return `<span class="preview-item ${idx === 0 ? 'is-cover' : ''}">
+          <span class="img-index">${idx + 1}</span>
           <img class="preview-img" src="${url}" onerror="this.style.opacity=.25" title="${src}">
           <button class="remove-img" type="button" data-index="${idx}" title="Remove image">×</button>
+          <button class="cover-btn" type="button" data-index="${idx}" title="Set as cover">${idx === 0 ? 'Cover' : '⭐ Cover'}</button>
         </span>`;
       }).join("");
 
       preview.querySelectorAll(".remove-img").forEach(btn => {
-        btn.onclick = async () => removeImageAt(Number(btn.dataset.index));
+        btn.onclick = async (e) => {
+          e.stopPropagation();
+          await removeImageAt(Number(btn.dataset.index));
+        };
       });
+
+      preview.querySelectorAll(".cover-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          moveImageToCover(Number(btn.dataset.index));
+        };
+      });
+
+      preview.querySelectorAll(".preview-item").forEach(item=>{
+        item.draggable=true;
+
+        item.addEventListener("dragstart",e=>{
+          e.dataTransfer.setData("text/plain",item.dataset.index);
+        });
+
+        item.addEventListener("dragover",e=>e.preventDefault());
+
+        item.addEventListener("drop",e=>{
+          e.preventDefault();
+          const from=Number(e.dataTransfer.getData("text/plain"));
+          const to=Number(item.dataset.index);
+          if(from===to) return;
+
+          const lines=$("images").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+          const moved=lines.splice(from,1)[0];
+          lines.splice(to,0,moved);
+          $("images").value=lines.join("\n");
+          updateImagePreview();
+        });
+      });
+
+      preview.querySelectorAll(".preview-item").forEach((item,i)=>item.dataset.index=i);
     }
 
     function safeFileName(name) {
