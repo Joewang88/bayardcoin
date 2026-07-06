@@ -1,10 +1,10 @@
-const bayardSupabase = window.supabase.createClient(
+window.bayardSupabase = window.supabase.createClient(
   window.CONFIG.SUPABASE_URL,
   window.CONFIG.SUPABASE_KEY
 );
 
 async function getProducts(category = null) {
-  let query = bayardSupabase
+  let query = window.bayardSupabase
     .from("products")
     .select("*")
     .order("created_at", { ascending: false });
@@ -24,7 +24,7 @@ async function getProducts(category = null) {
 }
 
 async function getProduct(id) {
-  const { data, error } = await bayardSupabase
+  const { data, error } = await window.bayardSupabase
     .from("products")
     .select("*")
     .eq("id", id)
