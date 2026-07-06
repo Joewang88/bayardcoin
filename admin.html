@@ -18,7 +18,7 @@
     .btn.primary{background:var(--gold);color:#1b1305}.btn.danger{background:rgba(199,92,92,.15);border-color:rgba(199,92,92,.5);color:#ffd0d0}.btn.ghost{background:transparent}.btn.ok{background:rgba(143,191,119,.16);border-color:rgba(143,191,119,.55);color:#d9ffd0}
     .msg{margin:14px 0;color:var(--muted)}.msg.ok{color:var(--ok)}.msg.err{color:#ffb0b0}.small{font-size:12px;color:var(--muted)}
     table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border-bottom:1px solid rgba(217,168,51,.16);padding:12px;text-align:left;vertical-align:top}th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
-    .thumb{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}.badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px}.sold{color:#ffb0b0}.available{color:#bff0a8}.quick-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .thumb{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}.badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px}.sold{color:#ffb0b0}.available{color:#bff0a8}.quick-actions{display:flex;gap:8px;flex-wrap:wrap}.preview-img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}
     @media(max-width:800px){.grid{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.hide-mobile{display:none}}
   </style>
 </head>
@@ -47,7 +47,16 @@
           <div class="graded-field"><label>Grade <span class="small">(optional)</span></label><input id="grade" /></div>
           <div class="graded-field"><label>Cert Number <span class="small">(optional)</span></label><input id="cert_number" /></div>
           <div class="graded-field"><label>Cert Link <span class="small">(optional)</span></label><input id="cert_link" /></div>
-          <div class="full"><label>Images, one per line</label><textarea id="images" placeholder="assets/products/chinese-machine-struck/bc-00001-1.jpg"></textarea><div class="small">Upload button will come in next step.</div></div>
+          <div class="full"><label>Images</label>
+            <textarea id="images" placeholder="Upload images or paste image URLs/paths, one per line"></textarea>
+            <div class="row" style="margin-top:10px">
+              <input id="imageUpload" type="file" accept="image/*" multiple style="display:none" />
+              <button id="uploadImagesBtn" class="btn" type="button">Upload Images</button>
+              <span id="uploadMsg" class="small"></span>
+            </div>
+            <div id="imagePreview" class="row" style="margin-top:10px"></div>
+            <div class="small">Images upload to Supabase Storage bucket: product-images.</div>
+          </div>
           <div class="full"><label>Description</label><textarea id="description"></textarea></div>
           <div><label>Featured</label><select id="featured"><option value="true">Yes</option><option value="false">No</option></select></div>
         </div>
@@ -90,6 +99,64 @@
     function showAdmin(){$("loginPanel").classList.add("hidden");$("adminPanel").classList.remove("hidden");$("logoutBtn").classList.remove("hidden");loadInventory();}
     async function checkSession(){const {data}=await bayardSupabase.auth.getSession();data.session?showAdmin():showLogin();}
 
+
+    function publicImageUrl(path) {
+      if (!path) return "";
+      if (/^https?:\/\//.test(path)) return path;
+      const cleanPath = path.replace(/^product-images\//, "");
+      const { data } = bayardSupabase.storage.from("product-images").getPublicUrl(cleanPath);
+      return data.publicUrl;
+    }
+
+    function updateImagePreview() {
+      const preview = $("imagePreview");
+      if (!preview) return;
+      const lines = $("images").value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+      preview.innerHTML = lines.slice(0, 12).map(src => {
+        const url = publicImageUrl(src);
+        return `<img class="preview-img" src="${url}" onerror="this.style.opacity=.25" title="${src}">`;
+      }).join("");
+    }
+
+    function safeFileName(name) {
+      return String(name || "image.jpg")
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9._-]/g, "");
+    }
+
+    async function uploadImages() {
+      const files = Array.from($("imageUpload").files || []);
+      if (!files.length) return;
+
+      const id = $("id").value.trim() || `bc-${Date.now()}`;
+      $("uploadMsg").textContent = `Uploading ${files.length} image(s)...`;
+
+      const uploadedPaths = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+        const cleanId = id.toLowerCase().replace(/[^a-z0-9_-]/g, "-");
+        const path = `${cleanId}/${Date.now()}-${i + 1}-${safeFileName(file.name) || `image.${ext}`}`;
+
+        const { error } = await bayardSupabase.storage
+          .from("product-images")
+          .upload(path, file, { cacheControl: "3600", upsert: true });
+
+        if (error) {
+          $("uploadMsg").textContent = error.message;
+          return;
+        }
+
+        uploadedPaths.push(path);
+      }
+
+      const existing = $("images").value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+      $("images").value = existing.concat(uploadedPaths).join("\n");
+      $("uploadMsg").textContent = `Uploaded ${uploadedPaths.length} image(s).`;
+      updateImagePreview();
+    }
+
     function getFormPayload(){
       const images=$("images").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
       const gs=getSelectedGradingService();
@@ -107,7 +174,7 @@
     function resetForm(){
       editingOriginalId=null;$("formTitle").textContent="Add Coin";
       ["id","item_number","title","price","country","province","denomination","year","variety","certification","grade","cert_number","cert_link","images","description","grading_service_other"].forEach(id=>$(id).value="");
-      $("category").value="chinese-machine-struck-coins";$("status").value="available";$("currency").value="USD";$("featured").value="true";setGradingService("");setMsg($("saveMsg"),"");
+      $("category").value="chinese-machine-struck-coins";$("status").value="available";$("currency").value="USD";$("featured").value="true";setGradingService("");setMsg($("saveMsg"),"");$("uploadMsg").textContent="";updateImagePreview();
     }
     function fillForm(p){
       editingOriginalId=p.id||null;$("formTitle").textContent="Edit Coin";
@@ -115,10 +182,16 @@
       $("price").value=p.price||"";$("currency").value=p.currency||"USD";$("country").value=p.country||"";$("province").value=p.province||"";$("denomination").value=p.denomination||"";$("year").value=p.year||"";$("variety").value=p.variety||"";
       setGradingService(p.grading_service||p.gradingService||p.certification||"");
       $("certification").value=p.certification||"";$("grade").value=p.grade||"";$("cert_number").value=p.cert_number||p.certNumber||"";$("cert_link").value=p.cert_link||p.certLink||"";
-      $("images").value=Array.isArray(p.images)?p.images.join("\n"):"";$("description").value=p.description||"";$("featured").value=p.featured?"true":"false";
+      $("images").value=Array.isArray(p.images)?p.images.join("\n"):"";$("description").value=p.description||"";$("featured").value=p.featured?"true":"false";updateImagePreview();
       setMsg($("saveMsg"),"Loaded existing product. ID is editable.", "ok");window.scrollTo({top:0,behavior:"smooth"});
     }
-    function firstImage(p){const img=Array.isArray(p.images)&&p.images.length?p.images[0]:"";return img&&!/^https?:\/\//.test(img)?img.replace(/^\.\.\//,""):img;}
+    function firstImage(p){
+      const img=Array.isArray(p.images)&&p.images.length?p.images[0]:"";
+      if(!img) return "";
+      if(/^https?:\/\//.test(img)) return img;
+      if(img.startsWith("assets/")) return img.replace(/^\.\.\//,"");
+      return publicImageUrl(img);
+    }
     async function updateStatus(id,status){const {error}=await bayardSupabase.from("products").update({status}).eq("id",id);if(error)alert(error.message);await loadInventory();}
     async function loadInventory(){
       setMsg($("listMsg"),"Loading...");
@@ -147,7 +220,12 @@
       if(error){setMsg($("saveMsg"),error.message,"err");return;}
       setMsg($("saveMsg"),`${payload.id} saved successfully.`,"ok");resetForm();loadInventory();
     };
-    $("resetBtn").onclick=resetForm;$("refreshBtn").onclick=loadInventory;$("grading_service_select").onchange=updateGradingUI;
+    $("resetBtn").onclick=resetForm;
+    $("refreshBtn").onclick=loadInventory;
+    $("grading_service_select").onchange=updateGradingUI;
+    $("uploadImagesBtn").onclick=()=>$("imageUpload").click();
+    $("imageUpload").onchange=uploadImages;
+    $("images").addEventListener("input", updateImagePreview);
     resetForm();checkSession();
   </script>
 </body>
