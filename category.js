@@ -123,10 +123,8 @@ function normalizeProduct(p) {
 let categoryProductsCache = null;
 
 async function loadCategoryProducts(category) {
-  const localProducts = (window.BAYARD_PRODUCTS || BAYARD_PRODUCTS || {})[category] || [];
-
   if (typeof getProducts !== "function") {
-    return localProducts;
+    return [];
   }
 
   try {
@@ -134,14 +132,13 @@ async function loadCategoryProducts(category) {
       categoryProductsCache = await getProducts(category);
     }
 
-    if (Array.isArray(categoryProductsCache) && categoryProductsCache.length) {
-      return categoryProductsCache.map(normalizeProduct);
-    }
+    return Array.isArray(categoryProductsCache)
+      ? categoryProductsCache.map(normalizeProduct)
+      : [];
   } catch (err) {
-    console.error("Could not load Supabase products. Falling back to products.js.", err);
+    console.error("Could not load Supabase products.", err);
+    return [];
   }
-
-  return localProducts;
 }
 
 async function renderProducts() {

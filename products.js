@@ -1,15 +1,6 @@
-// Bayard Coin V3.1 Professional inventory data
-// Directory rule:
-// assets/products/chinese-machine-struck/
-// assets/products/chinese-paper-money/
-// assets/products/chinese-bullion/
-// assets/products/chinese-ancient-coin/
-// assets/products/world-coin/
-// assets/products/us-coin/
-//
-// For each product, upload images using the SKU naming rule:
-// bc-00001-1.jpg, bc-00001-2.jpg, bc-00001-3.jpg
-// Sold: change status from "available" to "sold" and buy buttons disappear.
+// Bayard Coin inventory configuration
+// Products are managed through admin.html and stored in Supabase.
+// Do not add hardcoded/demo product data here.
 
 const PAYPAL_EMAIL = "wangjihang88@gmail.com";
 const ZELLE_PHONE = "412-330-8868";
@@ -25,41 +16,9 @@ const BAYARD_CATEGORY_IMAGES = {
   "us-coins": "assets/category/us-coin.jpg"
 };
 
+// Kept only as an empty fallback so older pages do not break if Supabase is unavailable.
 const BAYARD_PRODUCTS = {
-  "chinese-machine-struck-coins": [
-    {
-      id: "bc-00001",
-      itemNumber: "BC-00001",
-      sku: "BC-00001",
-      category: "chinese-machine-struck-coins",
-      status: "available",
-      featured: true,
-
-      title: "CHINA. Yunnan. Tael, ND (1943–44)",
-      country: "China",
-      province: "Yunnan",
-      denomination: "Tael",
-      year: "ND (1943–44)",
-      variety: "Small stag's head",
-
-      certification: "PCGS",
-      gradingService: "PCGS",
-      grade: "AU-58",
-      certNumber: "42439997",
-      certLink: "https://www.pcgs.com/cert/42439997",
-
-      price: "6000.00",
-      currency: "USD",
-
-      images: [
-        "../assets/products/chinese-machine-struck/bc-00001-1.jpg",
-        "../assets/products/chinese-machine-struck/bc-00001-2.jpg",
-        "../assets/products/chinese-machine-struck/bc-00001-3.jpg"
-      ],
-
-      description: "Variety with small stag's head. A lovely Mint State Tael, displaying softly glowing luster and attractive, balanced coloration. Strong cartwheel luster radiates across both surfaces, enhancing the overall eye appeal."
-    }
-  ],
+  "chinese-machine-struck-coins": [],
   "chinese-paper-money": [],
   "chinese-bullion": [],
   "chinese-ancient-coins": [],

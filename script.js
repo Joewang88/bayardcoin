@@ -53,19 +53,15 @@ function productLine(p) {
 }
 
 async function loadAllProductsForHome() {
-  if (typeof getProducts === 'function') {
-    try {
-      const data = await getProducts();
-      if (Array.isArray(data) && data.length) return data.map(normalizeHomeProduct);
-    } catch (err) {
-      console.error('Could not load Supabase products for homepage. Falling back to products.js.', err);
-    }
-  }
+  if (typeof getProducts !== 'function') return [];
 
-  if (typeof BAYARD_PRODUCTS === 'undefined') return [];
-  return Object.entries(BAYARD_PRODUCTS).flatMap(([category, items]) =>
-    (items || []).map(p => normalizeHomeProduct({ ...p, category: p.category || category }))
-  );
+  try {
+    const data = await getProducts();
+    return Array.isArray(data) ? data.map(normalizeHomeProduct) : [];
+  } catch (err) {
+    console.error('Could not load Supabase products for homepage.', err);
+    return [];
+  }
 }
 
 async function renderFeaturedCoins() {
