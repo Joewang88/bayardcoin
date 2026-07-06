@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BayardCoin Admin</title>
+  <style>
+    :root{--panel:#14110b;--text:#f8f0dc;--muted:#b6aa8d;--gold:#d9a833;--border:rgba(217,168,51,.28);--danger:#c75c5c;--ok:#8fbf77}
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(circle at top,#211807,#080808 45%);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+    a{color:var(--gold)}.wrap{max-width:1180px;margin:0 auto;padding:28px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}
+    h1{margin:0;font-size:28px;letter-spacing:.08em;text-transform:uppercase}h2{margin-top:0}
+    .panel{background:linear-gradient(180deg,var(--panel),#0e0c08);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px}
+    input,select,textarea{width:100%;background:#080808;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:14px}
+    textarea{min-height:90px;resize:vertical}.full{grid-column:1/-1}.hidden{display:none!important}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .btn{border:1px solid var(--border);background:rgba(217,168,51,.12);color:var(--text);border-radius:999px;padding:10px 16px;cursor:pointer;font-weight:700}
+    .btn.primary{background:var(--gold);color:#1b1305}.btn.danger{background:rgba(199,92,92,.15);border-color:rgba(199,92,92,.5);color:#ffd0d0}.btn.ghost{background:transparent}.btn.ok{background:rgba(143,191,119,.16);border-color:rgba(143,191,119,.55);color:#d9ffd0}
+    .msg{margin:14px 0;color:var(--muted)}.msg.ok{color:var(--ok)}.msg.err{color:#ffb0b0}.small{font-size:12px;color:var(--muted)}
+    table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border-bottom:1px solid rgba(217,168,51,.16);padding:12px;text-align:left;vertical-align:top}th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+    .thumb{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}.badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px}.sold{color:#ffb0b0}.available{color:#bff0a8}.quick-actions{display:flex;gap:8px;flex-wrap:wrap}.preview-img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}.preview-item{position:relative;display:inline-flex;cursor:grab}.remove-img{position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:#3a120f;color:#ffd0d0;cursor:pointer;font-weight:700;line-height:18px}.img-index{position:absolute;top:-8px;left:-8px;min-width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:#0b0b0b;color:var(--gold);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}.cover-btn{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);height:24px;border-radius:999px;border:1px solid var(--border);background:#1d1609;color:var(--gold);cursor:pointer;font-size:12px;padding:0 8px}.preview-item.is-cover .img-index{background:var(--gold);color:#1b1305}.preview-item.is-cover .cover-btn{background:var(--gold);color:#1b1305}
+    @media(max-width:800px){.grid{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.hide-mobile{display:none}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top"><div><h1>BayardCoin Admin</h1><div class="small">Develop branch only. Add/Edit inventory in Supabase.</div></div><div class="row"><a class="btn ghost" href="index.html">View Site</a><button id="logoutBtn" class="btn ghost hidden">Logout</button></div></div>
+    <section id="loginPanel" class="panel"><h2>Login</h2><div class="grid"><div><label>Email</label><input id="loginEmail" type="email" /></div><div><label>Password</label><input id="loginPassword" type="password" /></div></div><p class="row"><button id="loginBtn" class="btn primary">Login</button></p><div id="loginMsg" class="msg"></div></section>
+
+    <section id="adminPanel" class="hidden">
+      <section class="panel">
+        <h2 id="formTitle">Add Coin</h2>
+        <div class="small" style="margin-bottom:14px">For raw/ungraded coins, choose Grading Service = None. Certification, Grade, Cert Number, and Cert Link can stay blank.</div>
+        <div class="grid">
+          <div>
+            <label>ID <span class="small">(auto or editable)</span></label>
+            <div class="row">
+              <input id="id" placeholder="bc-00001" style="flex:1;min-width:180px" />
+              <button id="autoIdBtn" class="btn" type="button">Auto Generate</button>
+            </div>
+            <div class="small">ID and SKU sync automatically, e.g. bc-00004 / BC-00004.</div>
+          </div>
+          <div><label>Item Number / SKU</label><input id="item_number" placeholder="BC-00001" /></div>
+          <div class="full"><label>Title <span class="small">(required)</span></label><input id="title" placeholder="CHINA. Yunnan. Tael, ND (1943–44)" /></div>
+          <div><label>Category <span class="small">(required)</span></label><select id="category"><option value="chinese-machine-struck-coins">Chinese Machine Struck Coins</option><option value="chinese-paper-money">Chinese Paper Money</option><option value="chinese-bullion">Chinese Bullion</option><option value="chinese-ancient-coins">Chinese Ancient Coins</option><option value="world-coins">World Coins</option><option value="us-coins">US Coins</option></select></div>
+          <div><label>Status</label><select id="status"><option value="available">Available</option><option value="sold">Sold</option></select></div>
+          <div><label>Price</label><input id="price" placeholder="6000.00" /></div><div><label>Currency</label><input id="currency" value="USD" /></div>
+          <div><label>Country</label><input id="country" /></div><div><label>Province</label><input id="province" /></div>
+          <div><label>Denomination</label><input id="denomination" /></div><div><label>Year</label><input id="year" /></div>
+          <div><label>Variety</label><input id="variety" /></div>
+          <div><label>Grading Service</label><select id="grading_service_select"><option value="">None / Raw Coin</option><option value="PCGS">PCGS</option><option value="NGC">NGC</option><option value="ANACS">ANACS</option><option value="ICG">ICG</option><option value="Other">Other</option></select></div>
+          <div id="gradingOtherWrap" class="hidden"><label>Other Grading Service</label><input id="grading_service_other" /></div>
+          <div class="graded-field"><label>Certification <span class="small">(optional)</span></label><input id="certification" /></div>
+          <div class="graded-field"><label>Grade <span class="small">(optional)</span></label><input id="grade" /></div>
+          <div class="graded-field"><label>Cert Number <span class="small">(optional)</span></label><input id="cert_number" /></div>
+          <div class="graded-field"><label>Cert Link <span class="small">(optional)</span></label><input id="cert_link" /></div>
+          <div class="full"><label>Images</label>
+            <textarea id="images" placeholder="Upload images or paste image URLs/paths, one per line"></textarea>
+            <div class="row" style="margin-top:10px">
+              <input id="imageUpload" type="file" accept="image/*" multiple style="display:none" />
+              <button id="uploadImagesBtn" class="btn" type="button">Upload Images</button>
+              <span id="uploadMsg" class="small"></span>
+            </div>
+            <div id="imagePreview" class="row" style="margin-top:10px"></div>
+            <div class="small">Images upload to Supabase Storage bucket: product-images.</div>
+          </div>
+          <div class="full"><label>Description</label><textarea id="description"></textarea></div>
+          <div><label>Featured</label><select id="featured"><option value="true">Yes</option><option value="false">No</option></select></div>
+        </div>
+        <p class="row"><button id="saveBtn" class="btn primary">Save Coin</button><button id="resetBtn" class="btn ghost">Reset Form</button></p><div id="saveMsg" class="msg"></div>
+      </section>
+
+      <section class="panel" style="margin-top:18px">
+        <div class="top" style="margin-bottom:0"><h2>Inventory</h2><button id="refreshBtn" class="btn">Refresh</button></div>
+        <div class="small">Use Mark Sold / Mark Available for quick status changes.</div><div id="listMsg" class="msg"></div>
+        <table><thead><tr><th>Image</th><th>Title</th><th class="hide-mobile">Category</th><th>Status</th><th>Price</th><th>Actions</th></tr></thead><tbody id="productRows"></tbody></table>
+      </section>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    let editingOriginalId = null;
+
+    function setMsg(el,text,type=""){el.textContent=text||"";el.className="msg "+type;}
+
+    function padNumber(n) {
+      return String(n).padStart(5, "0");
+    }
+
+    function normalizeId(id) {
+      return String(id || "").trim().toLowerCase();
+    }
+
+    function idToSku(id) {
+      return normalizeId(id).toUpperCase();
+    }
+
+    async function generateNextId() {
+      const { data, error } = await bayardSupabase
+        .from("products")
+        .select("id");
+
+      if (error) {
+        setMsg($("saveMsg"), "Could not generate ID: " + error.message, "err");
+        return;
+      }
+
+      let maxNum = 0;
+      (data || []).forEach(row => {
+        const match = String(row.id || "").toLowerCase().match(/^bc-(\d+)$/);
+        if (match) maxNum = Math.max(maxNum, Number(match[1]));
+      });
+
+      const nextId = "bc-" + padNumber(maxNum + 1);
+      $("id").value = nextId;
+      $("item_number").value = idToSku(nextId);
+      $("item_number").dataset.auto = "true";
+    }
+
+    function syncSkuFromId() {
+      const id = normalizeId($("id").value);
+      if (!id) return;
+      if (!$("item_number").value.trim() || $("item_number").dataset.auto === "true") {
+        $("item_number").value = idToSku(id);
+        $("item_number").dataset.auto = "true";
+      }
+    }
+
+    function clean(v){return v===""?null:v;}
+    function getSelectedGradingService(){const s=$("grading_service_select").value;return s==="Other"?$("grading_service_other").value.trim():s;}
+    function updateGradingUI(){
+      const s=$("grading_service_select").value;
+      const raw=!s;
+      $("gradingOtherWrap").classList.toggle("hidden",s!=="Other");
+      document.querySelectorAll(".graded-field").forEach(el=>el.classList.toggle("hidden",raw));
+      if(raw){$("certification").value="";$("grade").value="";$("cert_number").value="";$("cert_link").value="";$("grading_service_other").value="";}
+      else if(s!=="Other") $("certification").value=s;
+    }
+    function setGradingService(v){
+      v=v||"";
+      if(["","PCGS","NGC","ANACS","ICG"].includes(v)){$("grading_service_select").value=v;$("grading_service_other").value="";}
+      else{$("grading_service_select").value="Other";$("grading_service_other").value=v;}
+      updateGradingUI();
+    }
+    function showLogin(){$("loginPanel").classList.remove("hidden");$("adminPanel").classList.add("hidden");$("logoutBtn").classList.add("hidden");}
+    function showAdmin(){$("loginPanel").classList.add("hidden");$("adminPanel").classList.remove("hidden");$("logoutBtn").classList.remove("hidden");loadInventory();}
+    async function checkSession(){const {data}=await bayardSupabase.auth.getSession();data.session?showAdmin():showLogin();}
+
+
+    function publicImageUrl(path) {
+      if (!path) return "";
+      if (/^https?:\/\//.test(path)) return path;
+      const cleanPath = path.replace(/^product-images\//, "");
+      const { data } = bayardSupabase.storage.from("product-images").getPublicUrl(cleanPath);
+      return data.publicUrl;
+    }
+
+    function storagePathFromImagePath(path) {
+      if (!path) return "";
+      if (/^https?:\/\//.test(path)) return "";
+      if (path.startsWith("assets/") || path.startsWith("../assets/")) return "";
+      return path.replace(/^product-images\//, "");
+    }
+
+    async function removeImageAt(index) {
+      const lines = $("images").value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+      const removed = lines[index];
+
+      if (!removed) return;
+
+      if (!confirm("Remove this image?")) return;
+
+      const storagePath = storagePathFromImagePath(removed);
+      if (storagePath) {
+        const { error } = await bayardSupabase
+          .storage
+          .from("product-images")
+          .remove([storagePath]);
+
+        if (error) {
+          alert("Image delete error: " + error.message);
+          return;
+        }
+      }
+
+      lines.splice(index, 1);
+      $("images").value = lines.join("\n");
+      updateImagePreview();
+    }
+
+
+    function moveImageToCover(index) {
+      const lines = $("images").value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+      if (index <= 0 || index >= lines.length) return;
+
+      const moved = lines.splice(index, 1)[0];
+      lines.unshift(moved);
+      $("images").value = lines.join("\n");
+      updateImagePreview();
+    }
+
+    function updateImagePreview() {
+      const preview = $("imagePreview");
+      if (!preview) return;
+      const lines = $("images").value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+      preview.innerHTML = lines.slice(0, 12).map((src, idx) => {
+        const url = publicImageUrl(src);
+        return `<span class="preview-item ${idx === 0 ? 'is-cover' : ''}">
+          <span class="img-index">${idx + 1}</span>
+          <img class="preview-img" src="${url}" onerror="this.style.opacity=.25" title="${src}">
+          <button class="remove-img" type="button" data-index="${idx}" title="Remove image">×</button>
+          <button class="cover-btn" type="button" data-index="${idx}" title="Set as cover">${idx === 0 ? 'Cover' : '⭐ Cover'}</button>
+        </span>`;
+      }).join("");
+
+      preview.querySelectorAll(".remove-img").forEach(btn => {
+        btn.onclick = async (e) => {
+          e.stopPropagation();
+          await removeImageAt(Number(btn.dataset.index));
+        };
+      });
+
+      preview.querySelectorAll(".cover-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          moveImageToCover(Number(btn.dataset.index));
+        };
+      });
+
+      preview.querySelectorAll(".preview-item").forEach(item=>{
+        item.draggable=true;
+
+        item.addEventListener("dragstart",e=>{
+          e.dataTransfer.setData("text/plain",item.dataset.index);
+        });
+
+        item.addEventListener("dragover",e=>e.preventDefault());
+
+        item.addEventListener("drop",e=>{
+          e.preventDefault();
+          const from=Number(e.dataTransfer.getData("text/plain"));
+          const to=Number(item.dataset.index);
+          if(from===to) return;
+
+          const lines=$("images").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+          const moved=lines.splice(from,1)[0];
+          lines.splice(to,0,moved);
+          $("images").value=lines.join("\n");
+          updateImagePreview();
+        });
+      });
+
+      preview.querySelectorAll(".preview-item").forEach((item,i)=>item.dataset.index=i);
+    }
+
+    function safeFileName(name) {
+      return String(name || "image.jpg")
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9._-]/g, "");
+    }
+
+    async function uploadImages() {
+      const files = Array.from($("imageUpload").files || []);
+      if (!files.length) return;
+
+      const id = $("id").value.trim() || `bc-${Date.now()}`;
+      $("uploadMsg").textContent = `Uploading ${files.length} image(s)...`;
+
+      const existing = $("images").value
+        .split(/\r?\n/)
+        .map(x => x.trim())
+        .filter(Boolean);
+
+      const cleanId = id.toLowerCase().replace(/[^a-z0-9_-]/g, "-");
+      const usedNumbers = new Set(
+        existing
+          .map(path => String(path).match(new RegExp(`${cleanId}-${String.raw`\d+`}\\.[a-z0-9]+$`, "i")))
+          .filter(Boolean)
+          .map(match => Number(String(match[0]).match(/-(\d+)\.[a-z0-9]+$/i)[1]))
+      );
+
+      function nextImageNumber() {
+        let n = 1;
+        while (usedNumbers.has(n)) n++;
+        usedNumbers.add(n);
+        return n;
+      }
+
+      const uploadedPaths = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+        const imageNumber = nextImageNumber();
+        const path = `${cleanId}/${cleanId}-${imageNumber}-${Date.now()}.${ext}`;
+
+        const { error } = await bayardSupabase.storage
+          .from("product-images")
+          .upload(path, file, { cacheControl: "3600", upsert: true });
+
+        if (error) {
+          $("uploadMsg").textContent = error.message;
+          return;
+        }
+
+        uploadedPaths.push(path);
+      }
+
+      $("images").value = existing.concat(uploadedPaths).join("\n");
+      $("uploadMsg").textContent = `Uploaded ${uploadedPaths.length} image(s).`;
+      updateImagePreview();
+    }
+
+    function getFormPayload(){
+      const images=$("images").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+      const gs=getSelectedGradingService();
+      return {
+        id:normalizeId($("id").value), item_number:clean($("item_number").value.trim() || idToSku($("id").value)), sku:clean($("item_number").value.trim() || idToSku($("id").value)),
+        title:$("title").value.trim(), category:$("category").value, status:$("status").value,
+        price:clean($("price").value.trim()), currency:$("currency").value.trim()||"USD",
+        country:clean($("country").value.trim()), province:clean($("province").value.trim()), denomination:clean($("denomination").value.trim()),
+        year:clean($("year").value.trim()), variety:clean($("variety").value.trim()),
+        certification:clean($("certification").value.trim()), grading_service:clean(gs), grade:clean($("grade").value.trim()),
+        cert_number:clean($("cert_number").value.trim()), cert_link:clean($("cert_link").value.trim()),
+        images, description:clean($("description").value.trim()), featured:$("featured").value==="true"
+      };
+    }
+    function resetForm(){
+      editingOriginalId=null;$("formTitle").textContent="Add Coin";
+      ["id","item_number","title","price","country","province","denomination","year","variety","certification","grade","cert_number","cert_link","images","description","grading_service_other"].forEach(id=>$(id).value="");
+      $("category").value="chinese-machine-struck-coins";$("status").value="available";$("currency").value="USD";$("featured").value="true";setGradingService("");setMsg($("saveMsg"),"");$("uploadMsg").textContent="";$("item_number").dataset.auto="true";updateImagePreview();generateNextId();
+    }
+    function fillForm(p){
+      editingOriginalId=p.id||null;$("formTitle").textContent="Edit Coin";
+      $("id").value=p.id||"";$("item_number").value=p.item_number||p.itemNumber||p.sku||"";$("item_number").dataset.auto="false";$("title").value=p.title||"";$("category").value=p.category||"chinese-machine-struck-coins";$("status").value=p.status||"available";
+      $("price").value=p.price||"";$("currency").value=p.currency||"USD";$("country").value=p.country||"";$("province").value=p.province||"";$("denomination").value=p.denomination||"";$("year").value=p.year||"";$("variety").value=p.variety||"";
+      setGradingService(p.grading_service||p.gradingService||p.certification||"");
+      $("certification").value=p.certification||"";$("grade").value=p.grade||"";$("cert_number").value=p.cert_number||p.certNumber||"";$("cert_link").value=p.cert_link||p.certLink||"";
+      $("images").value=Array.isArray(p.images)?p.images.join("\n"):"";$("description").value=p.description||"";$("featured").value=p.featured?"true":"false";updateImagePreview();
+      setMsg($("saveMsg"),"Loaded existing product. ID is editable.", "ok");window.scrollTo({top:0,behavior:"smooth"});
+    }
+    function firstImage(p){
+      const img=Array.isArray(p.images)&&p.images.length?p.images[0]:"";
+      if(!img) return "";
+      if(/^https?:\/\//.test(img)) return img;
+      if(img.startsWith("assets/")) return img.replace(/^\.\.\//,"");
+      return publicImageUrl(img);
+    }
+    
+    async function deleteProductAndImages(id){
+      const { data: product, error: readError } = await bayardSupabase
+        .from("products")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if(readError){
+        alert(readError.message);
+        return;
+      }
+
+      const storagePaths = (product.images || [])
+        .filter(p => p && !/^https?:\/\//.test(p) && !p.startsWith("assets/") && !p.startsWith("../assets/"))
+        .map(p => p.replace(/^product-images\//,""));
+
+      if(storagePaths.length){
+        const { error: storageError } = await bayardSupabase
+          .storage
+          .from("product-images")
+          .remove(storagePaths);
+
+        if(storageError){
+          alert("Image delete error: " + storageError.message);
+          return;
+        }
+      }
+
+      const { error: deleteError } = await bayardSupabase
+        .from("products")
+        .delete()
+        .eq("id", id);
+
+      if(deleteError){
+        alert(deleteError.message);
+        return;
+      }
+
+      await loadInventory();
+    }
+
+async function updateStatus(id,status){const {error}=await bayardSupabase.from("products").update({status}).eq("id",id);if(error)alert(error.message);await loadInventory();}
+    async function loadInventory(){
+      setMsg($("listMsg"),"Loading...");
+      const {data,error}=await bayardSupabase.from("products").select("*").order("created_at",{ascending:false});
+      if(error){setMsg($("listMsg"),error.message,"err");return;}
+      setMsg($("listMsg"),`${data.length} product(s) loaded.`,"ok");
+      $("productRows").innerHTML=data.map(p=>`<tr><td>${firstImage(p)?`<img class="thumb" src="${firstImage(p)}" onerror="this.style.opacity=.25">`:""}</td><td><strong>${p.title||""}</strong><br><span class="small">${p.id||""}</span><br><span class="small">${p.grading_service||p.certification||"Raw / ungraded"}</span></td><td class="hide-mobile">${p.category||""}</td><td><span class="badge ${p.status==="sold"?"sold":"available"}">${p.status||""}</span></td><td>${p.price||""}</td><td><div class="quick-actions"><button class="btn editBtn" data-id="${p.id}">Edit</button>${p.status==="sold"?`<button class="btn ok availableBtn" data-id="${p.id}">Mark Available</button>`:`<button class="btn danger soldBtn" data-id="${p.id}">Mark Sold</button>`}<button class="btn danger deleteBtn" data-id="${p.id}">Delete</button></div></td></tr>`).join("");
+      document.querySelectorAll(".editBtn").forEach(b=>b.onclick=async()=>{const {data,error}=await bayardSupabase.from("products").select("*").eq("id",b.dataset.id).single();error?alert(error.message):fillForm(data);});
+      document.querySelectorAll(".soldBtn").forEach(b=>b.onclick=async()=>{if(confirm("Mark this item as sold?"))await updateStatus(b.dataset.id,"sold");});
+      document.querySelectorAll(".availableBtn").forEach(b=>b.onclick=async()=>{if(confirm("Mark this item as available?"))await updateStatus(b.dataset.id,"available");});
+      document.querySelectorAll(".deleteBtn").forEach(b=>b.onclick=async()=>{if(!confirm(`Delete ${b.dataset.id}?`))return;await deleteProductAndImages(b.dataset.id);});
+    }
+
+    $("loginBtn").onclick=async()=>{setMsg($("loginMsg"),"Logging in...");const {error}=await bayardSupabase.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});if(error){setMsg($("loginMsg"),error.message,"err");return;}showAdmin();};
+    $("logoutBtn").onclick=async()=>{await bayardSupabase.auth.signOut();showLogin();};
+    $("saveBtn").onclick=async()=>{
+      const payload=getFormPayload();if(!payload.id||!payload.title||!payload.category){setMsg($("saveMsg"),"ID, Title, and Category are required.","err");return;}
+      setMsg($("saveMsg"),"Saving...");
+      let error=null;
+      if(editingOriginalId&&editingOriginalId!==payload.id){
+        let r=await bayardSupabase.from("products").insert(payload);if(r.error){setMsg($("saveMsg"),r.error.message,"err");return;}
+        r=await bayardSupabase.from("products").delete().eq("id",editingOriginalId);error=r.error;
+      }else{
+        const r=await bayardSupabase.from("products").upsert(payload,{onConflict:"id"});error=r.error;
+      }
+      if(error){setMsg($("saveMsg"),error.message,"err");return;}
+      setMsg($("saveMsg"),`${payload.id} saved successfully.`,"ok");resetForm();loadInventory();
+    };
+    $("resetBtn").onclick=resetForm;
+    $("refreshBtn").onclick=loadInventory;
+    $("grading_service_select").onchange=updateGradingUI;
+    $("uploadImagesBtn").onclick=()=>$("imageUpload").click();
+    $("imageUpload").onchange=uploadImages;
+    $("images").addEventListener("input", updateImagePreview);
+    $("autoIdBtn").onclick=generateNextId;
+    $("id").addEventListener("input", syncSkuFromId);
+    $("item_number").addEventListener("input", () => {$("item_number").dataset.auto="false";});
+    resetForm();checkSession();
+  </script>
+</body>
+</html>

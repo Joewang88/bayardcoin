@@ -14,11 +14,41 @@ function isSold(p) {
   return String(p.status || '').toLowerCase() === 'sold';
 }
 function firstImage(p, category) {
-  if (Array.isArray(p.images) && p.images.length) return p.images[0];
-  if (p.image) return p.image;
+  if (Array.isArray(p.images) && p.images.length) {
+    return fixImagePath(p.images[0]);
+  }
+
+  if (p.image) {
+    return fixImagePath(p.image);
+  }
+
   const categoryImg = (window.BAYARD_CATEGORY_IMAGES || {})[category] || 'assets/category/chinese-machine-struck.jpg';
   return '../' + categoryImg.replace(/^\.\.\//, '');
 }
+
+function fixImagePath(path) {
+  if (!path) return path;
+
+  if (/^https?:\/\//.test(path)) return path;
+
+  if (path.startsWith("../")) return path;
+
+  if (path.startsWith("assets/")) {
+    return "../" + path;
+  }
+
+  if (window.bayardSupabase && !path.startsWith("assets/")) {
+    const cleanPath = path.replace(/^product-images\//, "");
+    const { data } = window.bayardSupabase.storage
+      .from("product-images")
+      .getPublicUrl(cleanPath);
+
+    return data.publicUrl;
+  }
+
+  return path;
+}
+
 function paypalForm(p, title, item, price) {
   if (p.paypalLink) return `<a class="btn btn-primary buy-link" href="${p.paypalLink}" target="_blank" rel="noopener noreferrer">Buy with PayPal</a>`;
   return `<form class="buy-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
@@ -32,7 +62,7 @@ function paypalForm(p, title, item, price) {
   </form>`;
 }
 function renderGallery(p, category, title) {
-  const imgs = (Array.isArray(p.images) && p.images.length ? p.images : [firstImage(p, category)]);
+  const imgs = (Array.isArray(p.images) && p.images.length ? p.images : [firstImage(p, category)]).map(fixImagePath);
   const main = imgs[0];
   return `<div class="product-gallery">
     <button class="product-image-button" type="button" data-image="${main}" data-title="${title}" aria-label="View larger image of ${title}">
@@ -72,13 +102,55 @@ function renderCard(p, i, category) {
       </div>
     </article>`;
 }
-function renderProducts() {
+function normalizeProduct(p) {
+  const normalized = { ...p };
+
+  normalized.itemNumber = p.itemNumber || p.item_number || p.sku || p.id;
+  normalized.certNumber = p.certNumber || p.cert_number;
+  normalized.certLink = p.certLink || p.cert_link || p.cert_url;
+  normalized.gradingService = p.gradingService || p.grading_service;
+  normalized.paypalLink = p.paypalLink || p.paypal_link;
+
+  if (!normalized.images) {
+    if (Array.isArray(p.image_urls)) normalized.images = p.image_urls;
+    else if (Array.isArray(p.images)) normalized.images = p.images;
+    else if (p.cover_image) normalized.images = [p.cover_image];
+    else if (p.image_url) normalized.images = [p.image_url];
+  }
+  return normalized;
+}
+
+let categoryProductsCache = null;
+
+async function loadCategoryProducts(category) {
+  const localProducts = (window.BAYARD_PRODUCTS || BAYARD_PRODUCTS || {})[category] || [];
+
+  if (typeof getProducts !== "function") {
+    return localProducts;
+  }
+
+  try {
+    if (!categoryProductsCache) {
+      categoryProductsCache = await getProducts(category);
+    }
+
+    if (Array.isArray(categoryProductsCache) && categoryProductsCache.length) {
+      return categoryProductsCache.map(normalizeProduct);
+    }
+  } catch (err) {
+    console.error("Could not load Supabase products. Falling back to products.js.", err);
+  }
+
+  return localProducts;
+}
+
+async function renderProducts() {
   const mount = document.getElementById('inventory-grid');
   const empty = document.getElementById('empty-inventory');
   const search = document.getElementById('product-search');
   const sort = document.getElementById('product-sort');
   const category = document.body.dataset.category;
-  const all = (window.BAYARD_PRODUCTS || BAYARD_PRODUCTS || {})[category] || [];
+  const all = await loadCategoryProducts(category);
   const q = (search?.value || '').trim().toLowerCase();
   let products = all.filter(p => !q || productText(p).includes(q));
   const sortValue = sort?.value || 'newest';
