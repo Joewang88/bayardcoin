@@ -22,6 +22,7 @@
     .wrap{max-width:1180px;margin:0 auto;padding:28px}
     .top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}
     h1{margin:0;font-size:28px;letter-spacing:.08em;text-transform:uppercase}
+    h2{margin-top:0}
     .panel{background:linear-gradient(180deg,var(--panel),#0e0c08);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     label{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px}
@@ -32,6 +33,7 @@
     .btn.primary{background:var(--gold);color:#1b1305}
     .btn.danger{background:rgba(199,92,92,.15);border-color:rgba(199,92,92,.5);color:#ffd0d0}
     .btn.ghost{background:transparent}
+    .btn.ok{background:rgba(143,191,119,.16);border-color:rgba(143,191,119,.55);color:#d9ffd0}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .hidden{display:none!important}
     .msg{margin:14px 0;color:var(--muted)}
@@ -45,6 +47,7 @@
     .sold{color:#ffb0b0}
     .available{color:#bff0a8}
     .small{font-size:12px;color:var(--muted)}
+    .quick-actions{display:flex;gap:8px;flex-wrap:wrap}
     @media(max-width:800px){.grid{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}table{font-size:13px}.hide-mobile{display:none}}
   </style>
 </head>
@@ -80,10 +83,13 @@
     <section id="adminPanel" class="hidden">
       <section class="panel">
         <h2 id="formTitle">Add Coin</h2>
-        <input id="rowId" type="hidden" />
+        <div class="small" style="margin-bottom:14px">
+          For raw/ungraded coins, leave Certification, Grading Service, Grade, Cert Number, and Cert Link blank.
+        </div>
+
         <div class="grid">
           <div>
-            <label>ID</label>
+            <label>ID <span class="small">(required for new coin)</span></label>
             <input id="id" placeholder="bc-00001" />
           </div>
           <div>
@@ -91,11 +97,11 @@
             <input id="item_number" placeholder="BC-00001" />
           </div>
           <div class="full">
-            <label>Title</label>
+            <label>Title <span class="small">(required)</span></label>
             <input id="title" placeholder="CHINA. Yunnan. Tael, ND (1943–44)" />
           </div>
           <div>
-            <label>Category</label>
+            <label>Category <span class="small">(required)</span></label>
             <select id="category">
               <option value="chinese-machine-struck-coins">Chinese Machine Struck Coins</option>
               <option value="chinese-paper-money">Chinese Paper Money</option>
@@ -141,29 +147,29 @@
             <input id="variety" placeholder="Small stag's head" />
           </div>
           <div>
-            <label>Certification</label>
-            <input id="certification" placeholder="PCGS" />
+            <label>Certification <span class="small">(optional)</span></label>
+            <input id="certification" placeholder="PCGS / NGC / leave blank" />
           </div>
           <div>
-            <label>Grading Service</label>
-            <input id="grading_service" placeholder="PCGS" />
+            <label>Grading Service <span class="small">(optional)</span></label>
+            <input id="grading_service" placeholder="PCGS / NGC / leave blank" />
           </div>
           <div>
-            <label>Grade</label>
-            <input id="grade" placeholder="AU-58" />
+            <label>Grade <span class="small">(optional)</span></label>
+            <input id="grade" placeholder="AU-58 / MS63 / leave blank" />
           </div>
           <div>
-            <label>Cert Number</label>
-            <input id="cert_number" placeholder="42439997" />
+            <label>Cert Number <span class="small">(optional)</span></label>
+            <input id="cert_number" placeholder="42439997 / leave blank" />
           </div>
           <div class="full">
-            <label>Cert Link</label>
-            <input id="cert_link" placeholder="https://www.pcgs.com/cert/42439997" />
+            <label>Cert Link <span class="small">(optional)</span></label>
+            <input id="cert_link" placeholder="https://www.pcgs.com/cert/42439997 / leave blank" />
           </div>
           <div class="full">
             <label>Images, one per line</label>
             <textarea id="images" placeholder="assets/products/chinese-machine-struck/bc-00001-1.jpg&#10;assets/products/chinese-machine-struck/bc-00001-2.jpg&#10;assets/products/chinese-machine-struck/bc-00001-3.jpg"></textarea>
-            <div class="small">For now, use existing GitHub image paths. Later we will add direct upload to Supabase Storage.</div>
+            <div class="small">For now, use existing GitHub image paths. Later we will add direct upload.</div>
           </div>
           <div class="full">
             <label>Description</label>
@@ -189,6 +195,7 @@
           <h2>Inventory</h2>
           <button id="refreshBtn" class="btn">Refresh</button>
         </div>
+        <div class="small">Use Edit only when you need to change details. Use Mark Sold / Mark Available for quick status changes.</div>
         <div id="listMsg" class="msg"></div>
         <table>
           <thead>
@@ -243,13 +250,22 @@
       loadInventory();
     }
 
+    function cleanPayload(obj) {
+      const cleaned = {};
+      Object.entries(obj).forEach(([key, value]) => {
+        if (value === "") cleaned[key] = null;
+        else cleaned[key] = value;
+      });
+      return cleaned;
+    }
+
     function getFormPayload() {
       const imageLines = $("images").value
         .split(/\r?\n/)
         .map(x => x.trim())
         .filter(Boolean);
 
-      return {
+      return cleanPayload({
         id: $("id").value.trim(),
         item_number: $("item_number").value.trim(),
         sku: $("item_number").value.trim(),
@@ -271,7 +287,7 @@
         images: imageLines,
         description: $("description").value.trim(),
         featured: $("featured").value === "true"
-      };
+      });
     }
 
     function resetForm() {
@@ -283,12 +299,14 @@
       $("status").value = "available";
       $("currency").value = "USD";
       $("featured").value = "true";
+      $("id").disabled = false;
       setMsg($("saveMsg"), "");
     }
 
     function fillForm(p) {
       $("formTitle").textContent = "Edit Coin";
       $("id").value = p.id || "";
+      $("id").disabled = true;
       $("item_number").value = p.item_number || p.itemNumber || p.sku || "";
       $("title").value = p.title || "";
       $("category").value = p.category || "chinese-machine-struck-coins";
@@ -308,12 +326,27 @@
       $("images").value = Array.isArray(p.images) ? p.images.join("\n") : "";
       $("description").value = p.description || "";
       $("featured").value = p.featured ? "true" : "false";
+      setMsg($("saveMsg"), "Loaded existing product. Change status or details, then save.", "ok");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function firstImage(p) {
       const img = Array.isArray(p.images) && p.images.length ? p.images[0] : "";
       return img && !/^https?:\/\//.test(img) ? img.replace(/^\.\.\//, "") : img;
+    }
+
+    async function updateStatus(id, status) {
+      const { error } = await bayardSupabase
+        .from("products")
+        .update({ status })
+        .eq("id", id);
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      await loadInventory();
     }
 
     async function loadInventory() {
@@ -338,8 +371,13 @@
           <td><span class="badge ${p.status === "sold" ? "sold" : "available"}">${p.status || ""}</span></td>
           <td>${p.price || ""}</td>
           <td>
-            <button class="btn editBtn" data-id="${p.id}">Edit</button>
-            <button class="btn danger deleteBtn" data-id="${p.id}">Delete</button>
+            <div class="quick-actions">
+              <button class="btn editBtn" data-id="${p.id}">Edit</button>
+              ${p.status === "sold"
+                ? `<button class="btn ok availableBtn" data-id="${p.id}">Mark Available</button>`
+                : `<button class="btn danger soldBtn" data-id="${p.id}">Mark Sold</button>`}
+              <button class="btn danger deleteBtn" data-id="${p.id}">Delete</button>
+            </div>
           </td>
         </tr>
       `).join("");
@@ -353,6 +391,20 @@
             return;
           }
           fillForm(data);
+        });
+      });
+
+      document.querySelectorAll(".soldBtn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          if (!confirm("Mark this item as sold?")) return;
+          await updateStatus(btn.dataset.id, "sold");
+        });
+      });
+
+      document.querySelectorAll(".availableBtn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          if (!confirm("Mark this item as available?")) return;
+          await updateStatus(btn.dataset.id, "available");
         });
       });
 
@@ -388,12 +440,14 @@
 
     $("saveBtn").addEventListener("click", async () => {
       const payload = getFormPayload();
+
       if (!payload.id || !payload.title || !payload.category) {
-        setMsg($("saveMsg"), "ID, Title, and Category are required.", "err");
+        setMsg($("saveMsg"), "ID, Title, and Category are required only when adding/editing full product details. Use Mark Sold / Mark Available below for quick status changes.", "err");
         return;
       }
 
       setMsg($("saveMsg"), "Saving...");
+
       const { error } = await bayardSupabase
         .from("products")
         .upsert(payload, { onConflict: "id" });
