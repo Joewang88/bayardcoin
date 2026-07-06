@@ -28,9 +28,24 @@ function firstImage(p, category) {
 
 function fixImagePath(path) {
   if (!path) return path;
+
   if (/^https?:\/\//.test(path)) return path;
-  if (path.startsWith('../')) return path;
-  if (path.startsWith('assets/')) return '../' + path;
+
+  if (path.startsWith("../")) return path;
+
+  if (path.startsWith("assets/")) {
+    return "../" + path;
+  }
+
+  if (window.bayardSupabase && !path.startsWith("assets/")) {
+    const cleanPath = path.replace(/^product-images\//, "");
+    const { data } = window.bayardSupabase.storage
+      .from("product-images")
+      .getPublicUrl(cleanPath);
+
+    return data.publicUrl;
+  }
+
   return path;
 }
 
