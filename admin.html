@@ -5,211 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BayardCoin Admin</title>
   <style>
-    :root {
-      --bg:#090909;
-      --panel:#14110b;
-      --panel2:#1e180e;
-      --text:#f8f0dc;
-      --muted:#b6aa8d;
-      --gold:#d9a833;
-      --border:rgba(217,168,51,.28);
-      --danger:#c75c5c;
-      --ok:#8fbf77;
-    }
+    :root{--panel:#14110b;--text:#f8f0dc;--muted:#b6aa8d;--gold:#d9a833;--border:rgba(217,168,51,.28);--danger:#c75c5c;--ok:#8fbf77}
     *{box-sizing:border-box}
     body{margin:0;background:radial-gradient(circle at top,#211807,#080808 45%);color:var(--text);font-family:Arial,Helvetica,sans-serif}
-    a{color:var(--gold)}
-    .wrap{max-width:1180px;margin:0 auto;padding:28px}
-    .top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}
-    h1{margin:0;font-size:28px;letter-spacing:.08em;text-transform:uppercase}
-    h2{margin-top:0}
+    a{color:var(--gold)}.wrap{max-width:1180px;margin:0 auto;padding:28px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}
+    h1{margin:0;font-size:28px;letter-spacing:.08em;text-transform:uppercase}h2{margin-top:0}
     .panel{background:linear-gradient(180deg,var(--panel),#0e0c08);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    label{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px}
     input,select,textarea{width:100%;background:#080808;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:14px}
-    textarea{min-height:90px;resize:vertical}
-    .full{grid-column:1/-1}
+    textarea{min-height:90px;resize:vertical}.full{grid-column:1/-1}.hidden{display:none!important}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .btn{border:1px solid var(--border);background:rgba(217,168,51,.12);color:var(--text);border-radius:999px;padding:10px 16px;cursor:pointer;font-weight:700}
-    .btn.primary{background:var(--gold);color:#1b1305}
-    .btn.danger{background:rgba(199,92,92,.15);border-color:rgba(199,92,92,.5);color:#ffd0d0}
-    .btn.ghost{background:transparent}
-    .btn.ok{background:rgba(143,191,119,.16);border-color:rgba(143,191,119,.55);color:#d9ffd0}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .hidden{display:none!important}
-    .msg{margin:14px 0;color:var(--muted)}
-    .msg.ok{color:var(--ok)}
-    .msg.err{color:#ffb0b0}
-    table{width:100%;border-collapse:collapse;margin-top:18px}
-    th,td{border-bottom:1px solid rgba(217,168,51,.16);padding:12px;text-align:left;vertical-align:top}
-    th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
-    .thumb{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}
-    .badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px}
-    .sold{color:#ffb0b0}
-    .available{color:#bff0a8}
-    .small{font-size:12px;color:var(--muted)}
-    .quick-actions{display:flex;gap:8px;flex-wrap:wrap}
-    @media(max-width:800px){.grid{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}table{font-size:13px}.hide-mobile{display:none}}
+    .btn.primary{background:var(--gold);color:#1b1305}.btn.danger{background:rgba(199,92,92,.15);border-color:rgba(199,92,92,.5);color:#ffd0d0}.btn.ghost{background:transparent}.btn.ok{background:rgba(143,191,119,.16);border-color:rgba(143,191,119,.55);color:#d9ffd0}
+    .msg{margin:14px 0;color:var(--muted)}.msg.ok{color:var(--ok)}.msg.err{color:#ffb0b0}.small{font-size:12px;color:var(--muted)}
+    table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border-bottom:1px solid rgba(217,168,51,.16);padding:12px;text-align:left;vertical-align:top}th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+    .thumb{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}.badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px}.sold{color:#ffb0b0}.available{color:#bff0a8}.quick-actions{display:flex;gap:8px;flex-wrap:wrap}
+    @media(max-width:800px){.grid{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.hide-mobile{display:none}}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="top">
-      <div>
-        <h1>BayardCoin Admin</h1>
-        <div class="small">Develop branch only. Add/Edit inventory in Supabase.</div>
-      </div>
-      <div class="row">
-        <a class="btn ghost" href="index.html">View Site</a>
-        <button id="logoutBtn" class="btn ghost hidden">Logout</button>
-      </div>
-    </div>
-
-    <section id="loginPanel" class="panel">
-      <h2>Login</h2>
-      <div class="grid">
-        <div>
-          <label>Email</label>
-          <input id="loginEmail" type="email" placeholder="admin email" />
-        </div>
-        <div>
-          <label>Password</label>
-          <input id="loginPassword" type="password" placeholder="password" />
-        </div>
-      </div>
-      <p class="row"><button id="loginBtn" class="btn primary">Login</button></p>
-      <div id="loginMsg" class="msg"></div>
-    </section>
+    <div class="top"><div><h1>BayardCoin Admin</h1><div class="small">Develop branch only. Add/Edit inventory in Supabase.</div></div><div class="row"><a class="btn ghost" href="index.html">View Site</a><button id="logoutBtn" class="btn ghost hidden">Logout</button></div></div>
+    <section id="loginPanel" class="panel"><h2>Login</h2><div class="grid"><div><label>Email</label><input id="loginEmail" type="email" /></div><div><label>Password</label><input id="loginPassword" type="password" /></div></div><p class="row"><button id="loginBtn" class="btn primary">Login</button></p><div id="loginMsg" class="msg"></div></section>
 
     <section id="adminPanel" class="hidden">
       <section class="panel">
         <h2 id="formTitle">Add Coin</h2>
-        <div class="small" style="margin-bottom:14px">
-          For raw/ungraded coins, leave Certification, Grading Service, Grade, Cert Number, and Cert Link blank.
-        </div>
-
+        <div class="small" style="margin-bottom:14px">For raw/ungraded coins, choose Grading Service = None. Certification, Grade, Cert Number, and Cert Link can stay blank.</div>
         <div class="grid">
-          <div>
-            <label>ID <span class="small">(required for new coin)</span></label>
-            <input id="id" placeholder="bc-00001" />
-          </div>
-          <div>
-            <label>Item Number / SKU</label>
-            <input id="item_number" placeholder="BC-00001" />
-          </div>
-          <div class="full">
-            <label>Title <span class="small">(required)</span></label>
-            <input id="title" placeholder="CHINA. Yunnan. Tael, ND (1943–44)" />
-          </div>
-          <div>
-            <label>Category <span class="small">(required)</span></label>
-            <select id="category">
-              <option value="chinese-machine-struck-coins">Chinese Machine Struck Coins</option>
-              <option value="chinese-paper-money">Chinese Paper Money</option>
-              <option value="chinese-bullion">Chinese Bullion</option>
-              <option value="chinese-ancient-coins">Chinese Ancient Coins</option>
-              <option value="world-coins">World Coins</option>
-              <option value="us-coins">US Coins</option>
-            </select>
-          </div>
-          <div>
-            <label>Status</label>
-            <select id="status">
-              <option value="available">Available</option>
-              <option value="sold">Sold</option>
-            </select>
-          </div>
-          <div>
-            <label>Price</label>
-            <input id="price" placeholder="6000.00" />
-          </div>
-          <div>
-            <label>Currency</label>
-            <input id="currency" value="USD" />
-          </div>
-          <div>
-            <label>Country</label>
-            <input id="country" placeholder="China" />
-          </div>
-          <div>
-            <label>Province</label>
-            <input id="province" placeholder="Yunnan" />
-          </div>
-          <div>
-            <label>Denomination</label>
-            <input id="denomination" placeholder="Tael" />
-          </div>
-          <div>
-            <label>Year</label>
-            <input id="year" placeholder="ND (1943–44)" />
-          </div>
-          <div>
-            <label>Variety</label>
-            <input id="variety" placeholder="Small stag's head" />
-          </div>
-          <div>
-            <label>Certification <span class="small">(optional)</span></label>
-            <input id="certification" placeholder="PCGS / NGC / leave blank" />
-          </div>
-          <div>
-            <label>Grading Service <span class="small">(optional)</span></label>
-            <input id="grading_service" placeholder="PCGS / NGC / leave blank" />
-          </div>
-          <div>
-            <label>Grade <span class="small">(optional)</span></label>
-            <input id="grade" placeholder="AU-58 / MS63 / leave blank" />
-          </div>
-          <div>
-            <label>Cert Number <span class="small">(optional)</span></label>
-            <input id="cert_number" placeholder="42439997 / leave blank" />
-          </div>
-          <div class="full">
-            <label>Cert Link <span class="small">(optional)</span></label>
-            <input id="cert_link" placeholder="https://www.pcgs.com/cert/42439997 / leave blank" />
-          </div>
-          <div class="full">
-            <label>Images, one per line</label>
-            <textarea id="images" placeholder="assets/products/chinese-machine-struck/bc-00001-1.jpg&#10;assets/products/chinese-machine-struck/bc-00001-2.jpg&#10;assets/products/chinese-machine-struck/bc-00001-3.jpg"></textarea>
-            <div class="small">For now, use existing GitHub image paths. Later we will add direct upload.</div>
-          </div>
-          <div class="full">
-            <label>Description</label>
-            <textarea id="description"></textarea>
-          </div>
-          <div>
-            <label>Featured</label>
-            <select id="featured">
-              <option value="true">Yes</option>
-              <option value="false">No</option>
-            </select>
-          </div>
+          <div><label>ID <span class="small">(editable)</span></label><input id="id" placeholder="bc-00001" /></div>
+          <div><label>Item Number / SKU</label><input id="item_number" placeholder="BC-00001" /></div>
+          <div class="full"><label>Title <span class="small">(required)</span></label><input id="title" placeholder="CHINA. Yunnan. Tael, ND (1943–44)" /></div>
+          <div><label>Category <span class="small">(required)</span></label><select id="category"><option value="chinese-machine-struck-coins">Chinese Machine Struck Coins</option><option value="chinese-paper-money">Chinese Paper Money</option><option value="chinese-bullion">Chinese Bullion</option><option value="chinese-ancient-coins">Chinese Ancient Coins</option><option value="world-coins">World Coins</option><option value="us-coins">US Coins</option></select></div>
+          <div><label>Status</label><select id="status"><option value="available">Available</option><option value="sold">Sold</option></select></div>
+          <div><label>Price</label><input id="price" placeholder="6000.00" /></div><div><label>Currency</label><input id="currency" value="USD" /></div>
+          <div><label>Country</label><input id="country" /></div><div><label>Province</label><input id="province" /></div>
+          <div><label>Denomination</label><input id="denomination" /></div><div><label>Year</label><input id="year" /></div>
+          <div><label>Variety</label><input id="variety" /></div>
+          <div><label>Grading Service</label><select id="grading_service_select"><option value="">None / Raw Coin</option><option value="PCGS">PCGS</option><option value="NGC">NGC</option><option value="ANACS">ANACS</option><option value="ICG">ICG</option><option value="Other">Other</option></select></div>
+          <div id="gradingOtherWrap" class="hidden"><label>Other Grading Service</label><input id="grading_service_other" /></div>
+          <div class="graded-field"><label>Certification <span class="small">(optional)</span></label><input id="certification" /></div>
+          <div class="graded-field"><label>Grade <span class="small">(optional)</span></label><input id="grade" /></div>
+          <div class="graded-field"><label>Cert Number <span class="small">(optional)</span></label><input id="cert_number" /></div>
+          <div class="graded-field"><label>Cert Link <span class="small">(optional)</span></label><input id="cert_link" /></div>
+          <div class="full"><label>Images, one per line</label><textarea id="images" placeholder="assets/products/chinese-machine-struck/bc-00001-1.jpg"></textarea><div class="small">Upload button will come in next step.</div></div>
+          <div class="full"><label>Description</label><textarea id="description"></textarea></div>
+          <div><label>Featured</label><select id="featured"><option value="true">Yes</option><option value="false">No</option></select></div>
         </div>
-        <p class="row">
-          <button id="saveBtn" class="btn primary">Save Coin</button>
-          <button id="resetBtn" class="btn ghost">Reset Form</button>
-        </p>
-        <div id="saveMsg" class="msg"></div>
+        <p class="row"><button id="saveBtn" class="btn primary">Save Coin</button><button id="resetBtn" class="btn ghost">Reset Form</button></p><div id="saveMsg" class="msg"></div>
       </section>
 
       <section class="panel" style="margin-top:18px">
-        <div class="top" style="margin-bottom:0">
-          <h2>Inventory</h2>
-          <button id="refreshBtn" class="btn">Refresh</button>
-        </div>
-        <div class="small">Use Edit only when you need to change details. Use Mark Sold / Mark Available for quick status changes.</div>
-        <div id="listMsg" class="msg"></div>
-        <table>
-          <thead>
-            <tr>
-              <th>Image</th>
-              <th>Title</th>
-              <th class="hide-mobile">Category</th>
-              <th>Status</th>
-              <th>Price</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="productRows"></tbody>
-        </table>
+        <div class="top" style="margin-bottom:0"><h2>Inventory</h2><button id="refreshBtn" class="btn">Refresh</button></div>
+        <div class="small">Use Mark Sold / Mark Available for quick status changes.</div><div id="listMsg" class="msg"></div>
+        <table><thead><tr><th>Image</th><th>Title</th><th class="hide-mobile">Category</th><th>Status</th><th>Price</th><th>Actions</th></tr></thead><tbody id="productRows"></tbody></table>
       </section>
     </section>
   </div>
@@ -218,255 +66,89 @@
   <script src="js/config.js"></script>
   <script src="js/supabase.js"></script>
   <script>
-    const $ = (id) => document.getElementById(id);
+    const $ = id => document.getElementById(id);
+    let editingOriginalId = null;
 
-    const fields = [
-      "id","item_number","title","category","status","price","currency","country","province",
-      "denomination","year","variety","certification","grading_service","grade",
-      "cert_number","cert_link","images","description","featured"
-    ];
+    function setMsg(el,text,type=""){el.textContent=text||"";el.className="msg "+type;}
+    function clean(v){return v===""?null:v;}
+    function getSelectedGradingService(){const s=$("grading_service_select").value;return s==="Other"?$("grading_service_other").value.trim():s;}
+    function updateGradingUI(){
+      const s=$("grading_service_select").value;
+      const raw=!s;
+      $("gradingOtherWrap").classList.toggle("hidden",s!=="Other");
+      document.querySelectorAll(".graded-field").forEach(el=>el.classList.toggle("hidden",raw));
+      if(raw){$("certification").value="";$("grade").value="";$("cert_number").value="";$("cert_link").value="";$("grading_service_other").value="";}
+      else if(s!=="Other") $("certification").value=s;
+    }
+    function setGradingService(v){
+      v=v||"";
+      if(["","PCGS","NGC","ANACS","ICG"].includes(v)){$("grading_service_select").value=v;$("grading_service_other").value="";}
+      else{$("grading_service_select").value="Other";$("grading_service_other").value=v;}
+      updateGradingUI();
+    }
+    function showLogin(){$("loginPanel").classList.remove("hidden");$("adminPanel").classList.add("hidden");$("logoutBtn").classList.add("hidden");}
+    function showAdmin(){$("loginPanel").classList.add("hidden");$("adminPanel").classList.remove("hidden");$("logoutBtn").classList.remove("hidden");loadInventory();}
+    async function checkSession(){const {data}=await bayardSupabase.auth.getSession();data.session?showAdmin():showLogin();}
 
-    function setMsg(el, text, type = "") {
-      el.textContent = text || "";
-      el.className = "msg " + type;
+    function getFormPayload(){
+      const images=$("images").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+      const gs=getSelectedGradingService();
+      return {
+        id:$("id").value.trim(), item_number:clean($("item_number").value.trim()), sku:clean($("item_number").value.trim()),
+        title:$("title").value.trim(), category:$("category").value, status:$("status").value,
+        price:clean($("price").value.trim()), currency:$("currency").value.trim()||"USD",
+        country:clean($("country").value.trim()), province:clean($("province").value.trim()), denomination:clean($("denomination").value.trim()),
+        year:clean($("year").value.trim()), variety:clean($("variety").value.trim()),
+        certification:clean($("certification").value.trim()), grading_service:clean(gs), grade:clean($("grade").value.trim()),
+        cert_number:clean($("cert_number").value.trim()), cert_link:clean($("cert_link").value.trim()),
+        images, description:clean($("description").value.trim()), featured:$("featured").value==="true"
+      };
+    }
+    function resetForm(){
+      editingOriginalId=null;$("formTitle").textContent="Add Coin";
+      ["id","item_number","title","price","country","province","denomination","year","variety","certification","grade","cert_number","cert_link","images","description","grading_service_other"].forEach(id=>$(id).value="");
+      $("category").value="chinese-machine-struck-coins";$("status").value="available";$("currency").value="USD";$("featured").value="true";setGradingService("");setMsg($("saveMsg"),"");
+    }
+    function fillForm(p){
+      editingOriginalId=p.id||null;$("formTitle").textContent="Edit Coin";
+      $("id").value=p.id||"";$("item_number").value=p.item_number||p.itemNumber||p.sku||"";$("title").value=p.title||"";$("category").value=p.category||"chinese-machine-struck-coins";$("status").value=p.status||"available";
+      $("price").value=p.price||"";$("currency").value=p.currency||"USD";$("country").value=p.country||"";$("province").value=p.province||"";$("denomination").value=p.denomination||"";$("year").value=p.year||"";$("variety").value=p.variety||"";
+      setGradingService(p.grading_service||p.gradingService||p.certification||"");
+      $("certification").value=p.certification||"";$("grade").value=p.grade||"";$("cert_number").value=p.cert_number||p.certNumber||"";$("cert_link").value=p.cert_link||p.certLink||"";
+      $("images").value=Array.isArray(p.images)?p.images.join("\n"):"";$("description").value=p.description||"";$("featured").value=p.featured?"true":"false";
+      setMsg($("saveMsg"),"Loaded existing product. ID is editable.", "ok");window.scrollTo({top:0,behavior:"smooth"});
+    }
+    function firstImage(p){const img=Array.isArray(p.images)&&p.images.length?p.images[0]:"";return img&&!/^https?:\/\//.test(img)?img.replace(/^\.\.\//,""):img;}
+    async function updateStatus(id,status){const {error}=await bayardSupabase.from("products").update({status}).eq("id",id);if(error)alert(error.message);await loadInventory();}
+    async function loadInventory(){
+      setMsg($("listMsg"),"Loading...");
+      const {data,error}=await bayardSupabase.from("products").select("*").order("created_at",{ascending:false});
+      if(error){setMsg($("listMsg"),error.message,"err");return;}
+      setMsg($("listMsg"),`${data.length} product(s) loaded.`,"ok");
+      $("productRows").innerHTML=data.map(p=>`<tr><td>${firstImage(p)?`<img class="thumb" src="${firstImage(p)}" onerror="this.style.opacity=.25">`:""}</td><td><strong>${p.title||""}</strong><br><span class="small">${p.id||""}</span><br><span class="small">${p.grading_service||p.certification||"Raw / ungraded"}</span></td><td class="hide-mobile">${p.category||""}</td><td><span class="badge ${p.status==="sold"?"sold":"available"}">${p.status||""}</span></td><td>${p.price||""}</td><td><div class="quick-actions"><button class="btn editBtn" data-id="${p.id}">Edit</button>${p.status==="sold"?`<button class="btn ok availableBtn" data-id="${p.id}">Mark Available</button>`:`<button class="btn danger soldBtn" data-id="${p.id}">Mark Sold</button>`}<button class="btn danger deleteBtn" data-id="${p.id}">Delete</button></div></td></tr>`).join("");
+      document.querySelectorAll(".editBtn").forEach(b=>b.onclick=async()=>{const {data,error}=await bayardSupabase.from("products").select("*").eq("id",b.dataset.id).single();error?alert(error.message):fillForm(data);});
+      document.querySelectorAll(".soldBtn").forEach(b=>b.onclick=async()=>{if(confirm("Mark this item as sold?"))await updateStatus(b.dataset.id,"sold");});
+      document.querySelectorAll(".availableBtn").forEach(b=>b.onclick=async()=>{if(confirm("Mark this item as available?"))await updateStatus(b.dataset.id,"available");});
+      document.querySelectorAll(".deleteBtn").forEach(b=>b.onclick=async()=>{if(!confirm(`Delete ${b.dataset.id}?`))return;const {error}=await bayardSupabase.from("products").delete().eq("id",b.dataset.id);error?alert(error.message):loadInventory();});
     }
 
-    async function checkSession() {
-      const { data } = await bayardSupabase.auth.getSession();
-      if (data.session) showAdmin();
-      else showLogin();
-    }
-
-    function showLogin() {
-      $("loginPanel").classList.remove("hidden");
-      $("adminPanel").classList.add("hidden");
-      $("logoutBtn").classList.add("hidden");
-    }
-
-    function showAdmin() {
-      $("loginPanel").classList.add("hidden");
-      $("adminPanel").classList.remove("hidden");
-      $("logoutBtn").classList.remove("hidden");
-      loadInventory();
-    }
-
-    function cleanPayload(obj) {
-      const cleaned = {};
-      Object.entries(obj).forEach(([key, value]) => {
-        if (value === "") cleaned[key] = null;
-        else cleaned[key] = value;
-      });
-      return cleaned;
-    }
-
-    function getFormPayload() {
-      const imageLines = $("images").value
-        .split(/\r?\n/)
-        .map(x => x.trim())
-        .filter(Boolean);
-
-      return cleanPayload({
-        id: $("id").value.trim(),
-        item_number: $("item_number").value.trim(),
-        sku: $("item_number").value.trim(),
-        title: $("title").value.trim(),
-        category: $("category").value,
-        status: $("status").value,
-        price: $("price").value.trim(),
-        currency: $("currency").value.trim() || "USD",
-        country: $("country").value.trim(),
-        province: $("province").value.trim(),
-        denomination: $("denomination").value.trim(),
-        year: $("year").value.trim(),
-        variety: $("variety").value.trim(),
-        certification: $("certification").value.trim(),
-        grading_service: $("grading_service").value.trim(),
-        grade: $("grade").value.trim(),
-        cert_number: $("cert_number").value.trim(),
-        cert_link: $("cert_link").value.trim(),
-        images: imageLines,
-        description: $("description").value.trim(),
-        featured: $("featured").value === "true"
-      });
-    }
-
-    function resetForm() {
-      $("formTitle").textContent = "Add Coin";
-      fields.forEach(id => {
-        if ($(id)) $(id).value = "";
-      });
-      $("category").value = "chinese-machine-struck-coins";
-      $("status").value = "available";
-      $("currency").value = "USD";
-      $("featured").value = "true";
-      $("id").disabled = false;
-      setMsg($("saveMsg"), "");
-    }
-
-    function fillForm(p) {
-      $("formTitle").textContent = "Edit Coin";
-      $("id").value = p.id || "";
-      $("id").disabled = true;
-      $("item_number").value = p.item_number || p.itemNumber || p.sku || "";
-      $("title").value = p.title || "";
-      $("category").value = p.category || "chinese-machine-struck-coins";
-      $("status").value = p.status || "available";
-      $("price").value = p.price || "";
-      $("currency").value = p.currency || "USD";
-      $("country").value = p.country || "";
-      $("province").value = p.province || "";
-      $("denomination").value = p.denomination || "";
-      $("year").value = p.year || "";
-      $("variety").value = p.variety || "";
-      $("certification").value = p.certification || "";
-      $("grading_service").value = p.grading_service || p.gradingService || "";
-      $("grade").value = p.grade || "";
-      $("cert_number").value = p.cert_number || p.certNumber || "";
-      $("cert_link").value = p.cert_link || p.certLink || "";
-      $("images").value = Array.isArray(p.images) ? p.images.join("\n") : "";
-      $("description").value = p.description || "";
-      $("featured").value = p.featured ? "true" : "false";
-      setMsg($("saveMsg"), "Loaded existing product. Change status or details, then save.", "ok");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function firstImage(p) {
-      const img = Array.isArray(p.images) && p.images.length ? p.images[0] : "";
-      return img && !/^https?:\/\//.test(img) ? img.replace(/^\.\.\//, "") : img;
-    }
-
-    async function updateStatus(id, status) {
-      const { error } = await bayardSupabase
-        .from("products")
-        .update({ status })
-        .eq("id", id);
-
-      if (error) {
-        alert(error.message);
-        return;
+    $("loginBtn").onclick=async()=>{setMsg($("loginMsg"),"Logging in...");const {error}=await bayardSupabase.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});if(error){setMsg($("loginMsg"),error.message,"err");return;}showAdmin();};
+    $("logoutBtn").onclick=async()=>{await bayardSupabase.auth.signOut();showLogin();};
+    $("saveBtn").onclick=async()=>{
+      const payload=getFormPayload();if(!payload.id||!payload.title||!payload.category){setMsg($("saveMsg"),"ID, Title, and Category are required.","err");return;}
+      setMsg($("saveMsg"),"Saving...");
+      let error=null;
+      if(editingOriginalId&&editingOriginalId!==payload.id){
+        let r=await bayardSupabase.from("products").insert(payload);if(r.error){setMsg($("saveMsg"),r.error.message,"err");return;}
+        r=await bayardSupabase.from("products").delete().eq("id",editingOriginalId);error=r.error;
+      }else{
+        const r=await bayardSupabase.from("products").upsert(payload,{onConflict:"id"});error=r.error;
       }
-
-      await loadInventory();
-    }
-
-    async function loadInventory() {
-      setMsg($("listMsg"), "Loading...");
-      const { data, error } = await bayardSupabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        setMsg($("listMsg"), error.message, "err");
-        return;
-      }
-
-      setMsg($("listMsg"), `${data.length} product(s) loaded.`, "ok");
-
-      $("productRows").innerHTML = data.map(p => `
-        <tr>
-          <td>${firstImage(p) ? `<img class="thumb" src="${firstImage(p)}" onerror="this.style.opacity=.25">` : ""}</td>
-          <td><strong>${p.title || ""}</strong><br><span class="small">${p.id || ""}</span></td>
-          <td class="hide-mobile">${p.category || ""}</td>
-          <td><span class="badge ${p.status === "sold" ? "sold" : "available"}">${p.status || ""}</span></td>
-          <td>${p.price || ""}</td>
-          <td>
-            <div class="quick-actions">
-              <button class="btn editBtn" data-id="${p.id}">Edit</button>
-              ${p.status === "sold"
-                ? `<button class="btn ok availableBtn" data-id="${p.id}">Mark Available</button>`
-                : `<button class="btn danger soldBtn" data-id="${p.id}">Mark Sold</button>`}
-              <button class="btn danger deleteBtn" data-id="${p.id}">Delete</button>
-            </div>
-          </td>
-        </tr>
-      `).join("");
-
-      document.querySelectorAll(".editBtn").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = btn.dataset.id;
-          const { data, error } = await bayardSupabase.from("products").select("*").eq("id", id).single();
-          if (error) {
-            alert(error.message);
-            return;
-          }
-          fillForm(data);
-        });
-      });
-
-      document.querySelectorAll(".soldBtn").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          if (!confirm("Mark this item as sold?")) return;
-          await updateStatus(btn.dataset.id, "sold");
-        });
-      });
-
-      document.querySelectorAll(".availableBtn").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          if (!confirm("Mark this item as available?")) return;
-          await updateStatus(btn.dataset.id, "available");
-        });
-      });
-
-      document.querySelectorAll(".deleteBtn").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = btn.dataset.id;
-          if (!confirm(`Delete ${id}?`)) return;
-          const { error } = await bayardSupabase.from("products").delete().eq("id", id);
-          if (error) alert(error.message);
-          else loadInventory();
-        });
-      });
-    }
-
-    $("loginBtn").addEventListener("click", async () => {
-      setMsg($("loginMsg"), "Logging in...");
-      const { error } = await bayardSupabase.auth.signInWithPassword({
-        email: $("loginEmail").value.trim(),
-        password: $("loginPassword").value
-      });
-      if (error) {
-        setMsg($("loginMsg"), error.message, "err");
-        return;
-      }
-      setMsg($("loginMsg"), "");
-      showAdmin();
-    });
-
-    $("logoutBtn").addEventListener("click", async () => {
-      await bayardSupabase.auth.signOut();
-      showLogin();
-    });
-
-    $("saveBtn").addEventListener("click", async () => {
-      const payload = getFormPayload();
-
-      if (!payload.id || !payload.title || !payload.category) {
-        setMsg($("saveMsg"), "ID, Title, and Category are required only when adding/editing full product details. Use Mark Sold / Mark Available below for quick status changes.", "err");
-        return;
-      }
-
-      setMsg($("saveMsg"), "Saving...");
-
-      const { error } = await bayardSupabase
-        .from("products")
-        .upsert(payload, { onConflict: "id" });
-
-      if (error) {
-        setMsg($("saveMsg"), error.message, "err");
-        return;
-      }
-
-      setMsg($("saveMsg"), "Saved successfully.", "ok");
-      resetForm();
-      loadInventory();
-    });
-
-    $("resetBtn").addEventListener("click", resetForm);
-    $("refreshBtn").addEventListener("click", loadInventory);
-
-    resetForm();
-    checkSession();
+      if(error){setMsg($("saveMsg"),error.message,"err");return;}
+      setMsg($("saveMsg"),`${payload.id} saved successfully.`,"ok");resetForm();loadInventory();
+    };
+    $("resetBtn").onclick=resetForm;$("refreshBtn").onclick=loadInventory;$("grading_service_select").onchange=updateGradingUI;
+    resetForm();checkSession();
   </script>
 </body>
 </html>
