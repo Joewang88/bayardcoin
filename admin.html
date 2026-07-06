@@ -183,12 +183,18 @@
       const id = $("id").value.trim() || `bc-${Date.now()}`;
       $("uploadMsg").textContent = `Uploading ${files.length} image(s)...`;
 
+      const existing = $("images").value
+        .split(/\r?\n/)
+        .map(x => x.trim())
+        .filter(Boolean);
+
+      const startIndex = existing.length;
       const uploadedPaths = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
         const cleanId = id.toLowerCase().replace(/[^a-z0-9_-]/g, "-");
-        const path = `${cleanId}/${cleanId}-${i + 1}.${ext}`;
+        const path = `${cleanId}/${cleanId}-${startIndex + i + 1}.${ext}`;
 
         const { error } = await bayardSupabase.storage
           .from("product-images")
@@ -202,7 +208,6 @@
         uploadedPaths.push(path);
       }
 
-      const existing = $("images").value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
       $("images").value = existing.concat(uploadedPaths).join("\n");
       $("uploadMsg").textContent = `Uploaded ${uploadedPaths.length} image(s).`;
       updateImagePreview();
