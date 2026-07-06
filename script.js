@@ -45,7 +45,7 @@ function homeImage(p) {
 function productUrl(p) {
   const category = p.category || 'chinese-machine-struck-coins';
   const id = p.id || p.itemNumber || p.sku || '';
-  return `categories/${category}.html${id ? '#' + encodeURIComponent(String(id).toLowerCase()) : ''}`;
+  return `categories/${category}.html${id ? '?coin=' + encodeURIComponent(String(id).toLowerCase()) : ''}`;
 }
 
 function productLine(p) {

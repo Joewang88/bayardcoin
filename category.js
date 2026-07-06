@@ -13,6 +13,21 @@ function priceNumber(p) {
 function isSold(p) {
   return String(p.status || '').toLowerCase() === 'sold';
 }
+
+function selectedCoinParam() {
+  const params = new URLSearchParams(window.location.search);
+  const coin = params.get('coin');
+  return coin ? String(coin).trim().toLowerCase() : '';
+}
+
+function productIdentityList(p) {
+  return [
+    p.id,
+    p.itemNumber,
+    p.item_number,
+    p.sku
+  ].filter(Boolean).map(x => String(x).trim().toLowerCase());
+}
 function firstImage(p, category) {
   if (Array.isArray(p.images) && p.images.length) {
     return fixImagePath(p.images[0]);
@@ -148,8 +163,12 @@ async function renderProducts() {
   const sort = document.getElementById('product-sort');
   const category = document.body.dataset.category;
   const all = await loadCategoryProducts(category);
-  const q = (search?.value || '').trim().toLowerCase();
-  let products = all.filter(p => !q || productText(p).includes(q));
+  const selectedCoin = selectedCoinParam();
+  const q = selectedCoin || (search?.value || '').trim().toLowerCase();
+  if (selectedCoin && search) search.value = selectedCoin;
+  let products = selectedCoin
+    ? all.filter(p => productIdentityList(p).includes(selectedCoin))
+    : all.filter(p => !q || productText(p).includes(q));
   const sortValue = sort?.value || 'newest';
   products = products.slice().sort((a,b) => {
     if (sortValue === 'price-low') return priceNumber(a) - priceNumber(b);
