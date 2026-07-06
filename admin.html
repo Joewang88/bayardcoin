@@ -248,7 +248,7 @@
         const file = files[i];
         const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
         const imageNumber = nextImageNumber();
-        const path = `${cleanId}/${cleanId}-${imageNumber}.${ext}`;
+        const path = `${cleanId}/${cleanId}-${imageNumber}-${Date.now()}.${ext}`;
 
         const { error } = await bayardSupabase.storage
           .from("product-images")
