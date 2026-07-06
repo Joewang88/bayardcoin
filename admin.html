@@ -244,49 +244,7 @@
       if(img.startsWith("assets/")) return img.replace(/^\.\.\//,"");
       return publicImageUrl(img);
     }
-    
-    async function deleteProductAndImages(id){
-      const { data: product, error: readError } = await bayardSupabase
-        .from("products")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if(readError){
-        alert(readError.message);
-        return;
-      }
-
-      const storagePaths = (product.images || [])
-        .filter(path => path && !/^https?:\/\//.test(path) && !path.startsWith("assets/") && !path.startsWith("../assets/"))
-        .map(path => path.replace(/^product-images\//, ""));
-
-      if(storagePaths.length){
-        const { error: storageError } = await bayardSupabase
-          .storage
-          .from("product-images")
-          .remove(storagePaths);
-
-        if(storageError){
-          alert("Image delete error: " + storageError.message);
-          return;
-        }
-      }
-
-      const { error: deleteError } = await bayardSupabase
-        .from("products")
-        .delete()
-        .eq("id", id);
-
-      if(deleteError){
-        alert(deleteError.message);
-        return;
-      }
-
-      await loadInventory();
-    }
-
-async function updateStatus(id,status){const {error}=await bayardSupabase.from("products").update({status}).eq("id",id);if(error)alert(error.message);await loadInventory();}
+    async function updateStatus(id,status){const {error}=await bayardSupabase.from("products").update({status}).eq("id",id);if(error)alert(error.message);await loadInventory();}
     async function loadInventory(){
       setMsg($("listMsg"),"Loading...");
       const {data,error}=await bayardSupabase.from("products").select("*").order("created_at",{ascending:false});
@@ -296,7 +254,7 @@ async function updateStatus(id,status){const {error}=await bayardSupabase.from("
       document.querySelectorAll(".editBtn").forEach(b=>b.onclick=async()=>{const {data,error}=await bayardSupabase.from("products").select("*").eq("id",b.dataset.id).single();error?alert(error.message):fillForm(data);});
       document.querySelectorAll(".soldBtn").forEach(b=>b.onclick=async()=>{if(confirm("Mark this item as sold?"))await updateStatus(b.dataset.id,"sold");});
       document.querySelectorAll(".availableBtn").forEach(b=>b.onclick=async()=>{if(confirm("Mark this item as available?"))await updateStatus(b.dataset.id,"available");});
-      document.querySelectorAll(".deleteBtn").forEach(b=>b.onclick=async()=>{if(!confirm(`Delete ${b.dataset.id}?`))return;await deleteProductAndImages(b.dataset.id);});
+      document.querySelectorAll(".deleteBtn").forEach(b=>b.onclick=async()=>{if(!confirm(`Delete ${b.dataset.id}?`))return;const {error}=await bayardSupabase.from("products").delete().eq("id",b.dataset.id);error?alert(error.message):loadInventory();});
     }
 
     $("loginBtn").onclick=async()=>{setMsg($("loginMsg"),"Logging in...");const {error}=await bayardSupabase.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});if(error){setMsg($("loginMsg"),error.message,"err");return;}showAdmin();};
