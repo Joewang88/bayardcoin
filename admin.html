@@ -32,14 +32,7 @@
         <h2 id="formTitle">Add Coin</h2>
         <div class="small" style="margin-bottom:14px">For raw/ungraded coins, choose Grading Service = None. Certification, Grade, Cert Number, and Cert Link can stay blank.</div>
         <div class="grid">
-          <div>
-            <label>ID <span class="small">(auto or editable)</span></label>
-            <div class="row">
-              <input id="id" placeholder="bc-00001" style="flex:1;min-width:180px" />
-              <button id="autoIdBtn" class="btn" type="button">Auto Generate</button>
-            </div>
-            <div class="small">ID and SKU will sync automatically, e.g. bc-00004 / BC-00004.</div>
-          </div>
+          <div><label>ID <span class="small">(editable)</span></label><input id="id" placeholder="bc-00001" /></div>
           <div><label>Item Number / SKU</label><input id="item_number" placeholder="BC-00001" /></div>
           <div class="full"><label>Title <span class="small">(required)</span></label><input id="title" placeholder="CHINA. Yunnan. Tael, ND (1943–44)" /></div>
           <div><label>Category <span class="small">(required)</span></label><select id="category"><option value="chinese-machine-struck-coins">Chinese Machine Struck Coins</option><option value="chinese-paper-money">Chinese Paper Money</option><option value="chinese-bullion">Chinese Bullion</option><option value="chinese-ancient-coins">Chinese Ancient Coins</option><option value="world-coins">World Coins</option><option value="us-coins">US Coins</option></select></div>
@@ -86,51 +79,6 @@
     let editingOriginalId = null;
 
     function setMsg(el,text,type=""){el.textContent=text||"";el.className="msg "+type;}
-
-    function padNumber(n) {
-      return String(n).padStart(5, "0");
-    }
-
-    function normalizeId(id) {
-      return String(id || "").trim().toLowerCase();
-    }
-
-    function idToSku(id) {
-      return normalizeId(id).toUpperCase();
-    }
-
-    async function generateNextId() {
-      const { data, error } = await bayardSupabase
-        .from("products")
-        .select("id");
-
-      if (error) {
-        setMsg($("saveMsg"), "Could not generate ID: " + error.message, "err");
-        return;
-      }
-
-      let maxNum = 0;
-      (data || []).forEach(row => {
-        const match = String(row.id || "").toLowerCase().match(/^bc-(\d+)$/);
-        if (match) {
-          maxNum = Math.max(maxNum, Number(match[1]));
-        }
-      });
-
-      const nextId = "bc-" + padNumber(maxNum + 1);
-      $("id").value = nextId;
-      $("item_number").value = idToSku(nextId);
-    }
-
-    function syncSkuFromId() {
-      const id = normalizeId($("id").value);
-      if (!id) return;
-      if (!$("item_number").value.trim() || $("item_number").dataset.auto === "true") {
-        $("item_number").value = idToSku(id);
-        $("item_number").dataset.auto = "true";
-      }
-    }
-
     function clean(v){return v===""?null:v;}
     function getSelectedGradingService(){const s=$("grading_service_select").value;return s==="Other"?$("grading_service_other").value.trim():s;}
     function updateGradingUI(){
@@ -189,7 +137,7 @@
         const file = files[i];
         const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
         const cleanId = id.toLowerCase().replace(/[^a-z0-9_-]/g, "-");
-        const path = `${cleanId}/${cleanId}-${i + 1}.${ext}`;
+        const path = `${cleanId}/${Date.now()}-${i + 1}-${safeFileName(file.name) || `image.${ext}`}`;
 
         const { error } = await bayardSupabase.storage
           .from("product-images")
@@ -213,7 +161,7 @@
       const images=$("images").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
       const gs=getSelectedGradingService();
       return {
-        id:normalizeId($("id").value), item_number:clean($("item_number").value.trim() || idToSku($("id").value)), sku:clean($("item_number").value.trim() || idToSku($("id").value)),
+        id:$("id").value.trim(), item_number:clean($("item_number").value.trim()), sku:clean($("item_number").value.trim()),
         title:$("title").value.trim(), category:$("category").value, status:$("status").value,
         price:clean($("price").value.trim()), currency:$("currency").value.trim()||"USD",
         country:clean($("country").value.trim()), province:clean($("province").value.trim()), denomination:clean($("denomination").value.trim()),
@@ -226,11 +174,11 @@
     function resetForm(){
       editingOriginalId=null;$("formTitle").textContent="Add Coin";
       ["id","item_number","title","price","country","province","denomination","year","variety","certification","grade","cert_number","cert_link","images","description","grading_service_other"].forEach(id=>$(id).value="");
-      $("category").value="chinese-machine-struck-coins";$("status").value="available";$("currency").value="USD";$("featured").value="true";setGradingService("");setMsg($("saveMsg"),"");$("uploadMsg").textContent="";$("item_number").dataset.auto="true";updateImagePreview();generateNextId();
+      $("category").value="chinese-machine-struck-coins";$("status").value="available";$("currency").value="USD";$("featured").value="true";setGradingService("");setMsg($("saveMsg"),"");$("uploadMsg").textContent="";updateImagePreview();
     }
     function fillForm(p){
       editingOriginalId=p.id||null;$("formTitle").textContent="Edit Coin";
-      $("id").value=p.id||"";$("item_number").value=p.item_number||p.itemNumber||p.sku||"";$("item_number").dataset.auto="false";$("title").value=p.title||"";$("category").value=p.category||"chinese-machine-struck-coins";$("status").value=p.status||"available";
+      $("id").value=p.id||"";$("item_number").value=p.item_number||p.itemNumber||p.sku||"";$("title").value=p.title||"";$("category").value=p.category||"chinese-machine-struck-coins";$("status").value=p.status||"available";
       $("price").value=p.price||"";$("currency").value=p.currency||"USD";$("country").value=p.country||"";$("province").value=p.province||"";$("denomination").value=p.denomination||"";$("year").value=p.year||"";$("variety").value=p.variety||"";
       setGradingService(p.grading_service||p.gradingService||p.certification||"");
       $("certification").value=p.certification||"";$("grade").value=p.grade||"";$("cert_number").value=p.cert_number||p.certNumber||"";$("cert_link").value=p.cert_link||p.certLink||"";
@@ -244,7 +192,49 @@
       if(img.startsWith("assets/")) return img.replace(/^\.\.\//,"");
       return publicImageUrl(img);
     }
-    async function updateStatus(id,status){const {error}=await bayardSupabase.from("products").update({status}).eq("id",id);if(error)alert(error.message);await loadInventory();}
+    
+    async function deleteProductAndImages(id){
+      const { data: product, error: readError } = await bayardSupabase
+        .from("products")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if(readError){
+        alert(readError.message);
+        return;
+      }
+
+      const storagePaths = (product.images || [])
+        .filter(p => p && !/^https?:\/\//.test(p) && !p.startsWith("assets/") && !p.startsWith("../assets/"))
+        .map(p => p.replace(/^product-images\//,""));
+
+      if(storagePaths.length){
+        const { error: storageError } = await bayardSupabase
+          .storage
+          .from("product-images")
+          .remove(storagePaths);
+
+        if(storageError){
+          alert("Image delete error: " + storageError.message);
+          return;
+        }
+      }
+
+      const { error: deleteError } = await bayardSupabase
+        .from("products")
+        .delete()
+        .eq("id", id);
+
+      if(deleteError){
+        alert(deleteError.message);
+        return;
+      }
+
+      await loadInventory();
+    }
+
+async function updateStatus(id,status){const {error}=await bayardSupabase.from("products").update({status}).eq("id",id);if(error)alert(error.message);await loadInventory();}
     async function loadInventory(){
       setMsg($("listMsg"),"Loading...");
       const {data,error}=await bayardSupabase.from("products").select("*").order("created_at",{ascending:false});
@@ -254,7 +244,7 @@
       document.querySelectorAll(".editBtn").forEach(b=>b.onclick=async()=>{const {data,error}=await bayardSupabase.from("products").select("*").eq("id",b.dataset.id).single();error?alert(error.message):fillForm(data);});
       document.querySelectorAll(".soldBtn").forEach(b=>b.onclick=async()=>{if(confirm("Mark this item as sold?"))await updateStatus(b.dataset.id,"sold");});
       document.querySelectorAll(".availableBtn").forEach(b=>b.onclick=async()=>{if(confirm("Mark this item as available?"))await updateStatus(b.dataset.id,"available");});
-      document.querySelectorAll(".deleteBtn").forEach(b=>b.onclick=async()=>{if(!confirm(`Delete ${b.dataset.id}?`))return;const {error}=await bayardSupabase.from("products").delete().eq("id",b.dataset.id);error?alert(error.message):loadInventory();});
+      document.querySelectorAll(".deleteBtn").forEach(b=>b.onclick=async()=>{if(!confirm(`Delete ${b.dataset.id}?`))return;await deleteProductAndImages(b.dataset.id);});
     }
 
     $("loginBtn").onclick=async()=>{setMsg($("loginMsg"),"Logging in...");const {error}=await bayardSupabase.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});if(error){setMsg($("loginMsg"),error.message,"err");return;}showAdmin();};
@@ -278,9 +268,6 @@
     $("uploadImagesBtn").onclick=()=>$("imageUpload").click();
     $("imageUpload").onchange=uploadImages;
     $("images").addEventListener("input", updateImagePreview);
-    $("autoIdBtn").onclick=generateNextId;
-    $("id").addEventListener("input", syncSkuFromId);
-    $("item_number").addEventListener("input", () => {$("item_number").dataset.auto="false";});
     resetForm();checkSession();
   </script>
 </body>
