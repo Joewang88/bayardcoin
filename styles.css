@@ -352,3 +352,21 @@ h1 { font-size: clamp(48px, 6vw, 86px); line-height: 1.05; letter-spacing: .02em
 .product-cert { margin: 8px 0 0; }
 .cert-link { color: var(--gold2); font-weight: 800; text-decoration: none; border-bottom: 1px solid rgba(217,168,51,.45); }
 .cert-link:hover { color: #fff0c4; }
+
+/* Featured coins on home page */
+.featured-section { border-bottom: 1px solid var(--whiteLine); }
+.featured-coins-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 28px; }
+.featured-card { position: relative; display: block; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(145deg, rgba(22,22,21,.96), rgba(5,5,5,.96)); border-radius: 8px; transition: .3s ease; box-shadow: 0 22px 60px rgba(0,0,0,.28); }
+.featured-card:hover { transform: translateY(-6px); box-shadow: 0 28px 70px rgba(0,0,0,.48), 0 0 0 1px rgba(241,208,131,.22); }
+.featured-card img { width: 100%; aspect-ratio: 1.35 / 1; object-fit: contain; object-position: center; padding: 18px; background: radial-gradient(circle at center, rgba(217,168,51,.1), rgba(0,0,0,.78) 72%); transition: .45s ease; }
+.featured-card:hover img { transform: scale(1.03); }
+.featured-body { padding: 20px 22px 24px; border-top: 1px solid rgba(255,255,255,.08); background: linear-gradient(180deg, rgba(20,20,19,.92), rgba(8,8,8,.98)); }
+.featured-body span { color: var(--gold2); font-size: 12px; letter-spacing: .18em; font-weight: 900; }
+.featured-body h3 { color: #f6dfab; font-family: Cinzel, Georgia, serif; margin: 8px 0; font-size: clamp(20px, 2vw, 26px); }
+.featured-body p { color: var(--muted); margin: 0; line-height: 1.55; }
+.empty-featured { border: 1px solid var(--line); background: linear-gradient(145deg, rgba(22,22,21,.95), rgba(6,6,6,.95)); box-shadow: 0 30px 80px rgba(0,0,0,.35); text-align: center; padding: 46px 24px; color: var(--muted); }
+.empty-featured h3 { font-family: Cinzel, Georgia, serif; color: var(--gold2); font-size: 32px; }
+.highlight-card { display: block; transition: .3s ease; }
+.highlight-card:hover { transform: translateY(-5px); box-shadow: 0 22px 60px rgba(0,0,0,.42); }
+@media (max-width: 900px) { .featured-coins-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .featured-coins-grid { grid-template-columns: 1fr; } }

@@ -88,7 +88,7 @@ function renderCard(p, i, category) {
         <a class="btn btn-secondary contact-seller" href="mailto:${CONTACT_EMAIL}?subject=Inquiry%20about%20${encodeURIComponent(item)}%20-%20${encodeURIComponent(title)}">Contact Seller</a>
       </div>`;
   return `
-    <article class="product-card reveal ${sold ? 'sold-card' : ''}">
+    <article id="${String(p.id || item).toLowerCase()}" class="product-card reveal ${sold ? 'sold-card' : ''}">
       ${sold ? '<div class="sold-ribbon">SOLD</div>' : ''}
       ${renderGallery(p, category, title)}
       <div class="product-body">
